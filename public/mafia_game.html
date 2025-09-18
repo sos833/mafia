@@ -158,34 +158,6 @@
         .turn-timer { font-size: 48px; font-family: 'Cinzel Decorative', cursive; color: #8B0000; margin-bottom: 10px; }
         .turn-player { font-size: 28px; margin-bottom: 15px; font-family: 'Lateef', serif; }
         .skip-turn-btn { background: transparent; border: 1px solid #f0e6d2; color: #f0e6d2; padding: 8px 20px; cursor: pointer; font-family: 'Lateef', serif; font-size: 22px; transition: all 0.3s; border-radius: 5px;}
-        
-        #panel-toggle-btn { display: none; } /* Hidden by default */
-        
-        @media (max-width: 800px) {
-            .game-container {
-                grid-template-columns: 1fr;
-                grid-template-rows: 1fr;
-            }
-            .log-panel {
-                position: fixed; top: 0; right: -100%;
-                width: 80%; max-width: 350px; height: 100%;
-                z-index: 40; border-radius: 0;
-                transition: right 0.5s ease-in-out;
-            }
-            .log-panel.open { right: 0; }
-            #panel-toggle-btn {
-                display: flex; justify-content: center; align-items: center;
-                position: fixed; top: 50%; right: 0;
-                transform: translateY(-50%);
-                width: 30px; height: 80px;
-                background: rgba(139,0,0,0.7);
-                border: 1px solid #ff0000; color: white;
-                border-radius: 10px 0 0 10px;
-                font-size: 24px; cursor: pointer; z-index: 50;
-                transition: right 0.5s ease-in-out;
-            }
-            #panel-toggle-btn.open { right: 80%; max-width: 350px; }
-        }
     </style>
 </head>
 <body>
@@ -246,7 +218,7 @@
         </div>
     </div>
     
-    <button id="panel-toggle-btn">&#9664;</button>
+    <button id="panel-toggle-btn" style="display:none;">&#9664;</button>
 
     <div id="game-over-modal" class="modal">
         <div class="modal-content">
@@ -399,6 +371,15 @@
             });
         });
 
+        exitToMenuBtn.addEventListener('click', () => { window.location.reload(); });
+        closeRoleCardBtn.addEventListener('click', () => { document.getElementById('role-card-modal').classList.remove('visible'); });
+
+        startGameBtnIngame.addEventListener('click', () => {
+            if (currentRoomId) {
+                socket.emit('start-game', currentRoomId);
+            }
+        });
+        
         panelToggleBtn.addEventListener('click', () => {
             logPanel.classList.toggle('open');
             panelToggleBtn.classList.toggle('open');
@@ -406,15 +387,6 @@
                 panelToggleBtn.innerHTML = '&#9664;';
             } else {
                 panelToggleBtn.innerHTML = '&#9654;';
-            }
-        });
-
-        exitToMenuBtn.addEventListener('click', () => { window.location.reload(); });
-        closeRoleCardBtn.addEventListener('click', () => { document.getElementById('role-card-modal').classList.remove('visible'); });
-
-        startGameBtnIngame.addEventListener('click', () => {
-            if (currentRoomId) {
-                socket.emit('start-game', currentRoomId);
             }
         });
 

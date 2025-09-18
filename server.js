@@ -185,7 +185,12 @@ function startVotingPhase(roomId) {
 io.on('connection', (socket) => {
     socket.on('create-game', (playerName, settings) => {
         const roomId = crypto.randomBytes(3).toString('hex').toUpperCase();
-        rooms[roomId] = { players: [], hostId: socket.id, gameState: null, settings: settings };
+        rooms[roomId] = {
+            players: [],
+            hostId: socket.id,
+            gameState: null,
+            settings: settings
+        };
         socket.emit('game-created', roomId);
     });
 
@@ -194,6 +199,7 @@ io.on('connection', (socket) => {
         if (!room) { return socket.emit('error-message', 'الغرفة غير موجودة.'); }
         if (room.gameState) { return socket.emit('error-message', 'اللعبة قد بدأت بالفعل.'); }
         if (room.settings && room.players.length >= room.settings.playerCount) { return socket.emit('error-message', 'الغرفة ممتلئة.'); }
+
         socket.join(roomId);
         room.players.push({ id: socket.id, name: playerName });
         socket.emit('joined-successfully', roomId);
@@ -201,11 +207,11 @@ io.on('connection', (socket) => {
         socket.to(roomId).emit('user-joined', socket.id, playerName);
     });
     
-    socket.on('start-game', (roomId, settings) => {
+    socket.on('start-game', (roomId) => {
         const room = rooms[roomId];
         if (room && room.hostId === socket.id && !room.gameState) {
-            room.settings = settings; // Update settings just in case
-            room.gameState = createGameState(room.players, room.settings);
+            // THE CRITICAL FIX IS HERE: Use the settings stored in the room, not empty ones.
+            room.gameState = createGameState(room.players, room.settings); 
             
             room.players.forEach(player => {
                 const roleInfo = room.gameState.roles[player.name];
