@@ -56,7 +56,6 @@ function checkWinCondition(roomId) {
     const alivePlayers = room.gameState.players.filter(p => p.isAlive);
     const aliveMafia = alivePlayers.filter(p => p.isAlive && room.gameState.roles[p.name].title === 'المافيا');
     const aliveCitizens = alivePlayers.length - aliveMafia.length;
-
     if (aliveMafia.length === 0) {
         logToRoom(roomId, "لقد تم القضاء على كل المافيا! المواطنون ينتصرون!", 'narrative');
         playSoundToRoom(roomId, 'citizens-win.mp3');
@@ -207,11 +206,11 @@ io.on('connection', (socket) => {
         socket.to(roomId).emit('user-joined', socket.id, playerName);
     });
     
-    socket.on('start-game', (roomId) => {
+    socket.on('start-game', (roomId, settings) => {
         const room = rooms[roomId];
         if (room && room.hostId === socket.id && !room.gameState) {
-            // THE CRITICAL FIX IS HERE: Use the settings stored in the room, not empty ones.
-            room.gameState = createGameState(room.players, room.settings); 
+            room.settings = settings; // Update settings just in case
+            room.gameState = createGameState(room.players, room.settings);
             
             room.players.forEach(player => {
                 const roleInfo = room.gameState.roles[player.name];
