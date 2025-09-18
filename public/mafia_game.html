@@ -158,36 +158,32 @@
         .turn-timer { font-size: 48px; font-family: 'Cinzel Decorative', cursive; color: #8B0000; margin-bottom: 10px; }
         .turn-player { font-size: 28px; margin-bottom: 15px; font-family: 'Lateef', serif; }
         .skip-turn-btn { background: transparent; border: 1px solid #f0e6d2; color: #f0e6d2; padding: 8px 20px; cursor: pointer; font-family: 'Lateef', serif; font-size: 22px; transition: all 0.3s; border-radius: 5px;}
-        #panel-toggle-btn {
-            position: fixed;
-            top: 50%;
-            right: 425px; /* عرض اللوحة + المسافة */
-            transform: translateY(-50%);
-            z-index: 5;
-            background: rgba(139, 0, 0, 0.6);
-            border: 1px solid #ff0000;
-            color: white;
-            width: 30px;
-            height: 60px;
-            font-size: 24px;
-            cursor: pointer;
-            border-radius: 8px 0 0 8px; /* حواف دائرية على اليسار فقط */
-            transition: all 0.3s ease;
-            display: none; /* يبقى مخفياً بشكل افتراضي */
-        }
+        #panel-toggle-btn { display: none; }
 
-        #panel-toggle-btn.open {
-             right: 425px; /* ليبقى مكانه عند الفتح */
-        }
-        
-        /* نحتاج أيضاً لتعديل سلوك اللوحة عند الفتح والإغلاق */
-        .log-panel {
-            transition: transform 0.3s ease;
-        }
-
-        .log-panel:not(.open) {
-            /* يمكنك إضافة تأثير إخفاء اللوحة هنا إذا أردت */
-            /* مثلاً: transform: translateX(100%); */
+        @media (max-width: 800px) {
+            .game-container { grid-template-columns: 1fr; grid-template-rows: 1fr; padding: 0; gap: 0; }
+            .log-panel {
+                position: fixed; top: 0; right: -100%;
+                width: 80%; max-width: 350px; height: 100%;
+                z-index: 40; border-radius: 0; border-right: none; border-left: 2px solid rgba(139, 0, 0, 0.5);
+                transition: right 0.5s ease-in-out;
+            }
+            .log-panel.open { right: 0; }
+            #panel-toggle-btn {
+                display: flex; justify-content: center; align-items: center;
+                position: fixed; top: 50%; right: 0;
+                transform: translateY(-50%);
+                width: 30px; height: 80px;
+                background: rgba(139,0,0,0.7);
+                border: 1px solid #ff0000; color: white;
+                border-radius: 10px 0 0 10px;
+                font-size: 24px; cursor: pointer; z-index: 50;
+                transition: right 0.5s ease-in-out;
+            }
+            #panel-toggle-btn.open { right: 80%; max-width: 350px; }
+            #game-table { width: 90vw; height: 90vw; }
+            .player-seat { width: 70px; height: 70px; }
+            .player-name { font-size: 14px; }
         }
     </style>
 </head>
