@@ -208,7 +208,7 @@ io.on('connection', (socket) => {
     socket.on('start-game', (roomId, settings) => {
         const room = rooms[roomId];
         if (room && room.hostId === socket.id && !room.gameState) {
-            room.settings = settings; // Update settings from host
+            room.settings = settings; // Update settings just in case
             room.gameState = createGameState(room.players, room.settings);
             
             room.players.forEach(player => {

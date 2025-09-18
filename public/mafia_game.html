@@ -372,8 +372,9 @@
 
         startGameBtnIngame.addEventListener('click', () => {
             if (currentRoomId) {
-                // Settings are already on the server from room creation, so we don't need to send them again.
-                socket.emit('start-game', currentRoomId);
+                // Settings are already on the server from room creation.
+                // We send a simplified object just to trigger the event.
+                socket.emit('start-game', currentRoomId, {});
             }
         });
 
