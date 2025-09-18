@@ -162,7 +162,7 @@
 </head>
 <body>
     <video autoplay muted loop id="bg-video">
-        <source src="https://assets.mixkit.co/videos/preview/mixkit-spooky-forest-at-night-2114-large.mp4" type="video/mp4">
+        <source src="videos/bg-video.mp4" type="video/mp4">
     </video>
 
     <div class="setup-container" id="setup-container">
@@ -372,9 +372,7 @@
 
         startGameBtnIngame.addEventListener('click', () => {
             if (currentRoomId) {
-                // Settings are already on the server from room creation.
-                // We send a simplified object just to trigger the event.
-                socket.emit('start-game', currentRoomId, {});
+                socket.emit('start-game', currentRoomId);
             }
         });
 
