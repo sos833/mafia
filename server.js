@@ -189,7 +189,7 @@ io.on('connection', (socket) => {
             players: [],
             hostId: socket.id,
             gameState: null,
-            settings: settings // الإعدادات يتم حفظها هنا بشكل صحيح
+            settings: settings
         };
         socket.emit('game-created', roomId);
     });
@@ -207,12 +207,11 @@ io.on('connection', (socket) => {
         socket.to(roomId).emit('user-joined', socket.id, playerName);
     });
     
-    socket.on('start-game', (roomId) => {
+    socket.on('start-game', (roomId, settings) => {
         const room = rooms[roomId];
+        // THE CRITICAL FIX IS HERE: Use the settings stored in the room, not potentially empty ones from the client
         if (room && room.hostId === socket.id && !room.gameState) {
-            //  ---  الحل هنا  ---
-            // نستخدم الإعدادات التي تم تخزينها في الغرفة عند إنشائها
-            room.gameState = createGameState(room.players, room.settings); 
+            room.gameState = createGameState(room.players, room.settings); // <-- USE room.settings
             
             room.players.forEach(player => {
                 const roleInfo = room.gameState.roles[player.name];

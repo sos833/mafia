@@ -158,6 +158,37 @@
         .turn-timer { font-size: 48px; font-family: 'Cinzel Decorative', cursive; color: #8B0000; margin-bottom: 10px; }
         .turn-player { font-size: 28px; margin-bottom: 15px; font-family: 'Lateef', serif; }
         .skip-turn-btn { background: transparent; border: 1px solid #f0e6d2; color: #f0e6d2; padding: 8px 20px; cursor: pointer; font-family: 'Lateef', serif; font-size: 22px; transition: all 0.3s; border-radius: 5px;}
+        #panel-toggle-btn {
+            position: fixed;
+            top: 50%;
+            right: 425px; /* عرض اللوحة + المسافة */
+            transform: translateY(-50%);
+            z-index: 5;
+            background: rgba(139, 0, 0, 0.6);
+            border: 1px solid #ff0000;
+            color: white;
+            width: 30px;
+            height: 60px;
+            font-size: 24px;
+            cursor: pointer;
+            border-radius: 8px 0 0 8px; /* حواف دائرية على اليسار فقط */
+            transition: all 0.3s ease;
+            display: none; /* يبقى مخفياً بشكل افتراضي */
+        }
+
+        #panel-toggle-btn.open {
+             right: 425px; /* ليبقى مكانه عند الفتح */
+        }
+        
+        /* نحتاج أيضاً لتعديل سلوك اللوحة عند الفتح والإغلاق */
+        .log-panel {
+            transition: transform 0.3s ease;
+        }
+
+        .log-panel:not(.open) {
+            /* يمكنك إضافة تأثير إخفاء اللوحة هنا إذا أردت */
+            /* مثلاً: transform: translateX(100%); */
+        }
     </style>
 </head>
 <body>
@@ -201,7 +232,7 @@
         <div class="game-table-area" id="game-table-area">
             <div id="game-table"></div>
         </div>
-        <div class="log-panel" id="log-panel">
+     <div class="log-panel open" id="log-panel">
             <div id="game-controls">
                  <div class="room-info" id="room-info-display" style="display: none;">
                     <span>كود الغرفة: <strong id="room-id-text"></strong></span>
@@ -396,7 +427,7 @@
             socket.emit('join-room', roomId, playerName);
         });
 
-        socket.on('joined-successfully', (roomId) => {
+       socket.on('joined-successfully', (roomId) => {
             currentRoomId = roomId;
             navigator.mediaDevices.getUserMedia({ audio: true, video: false })
                 .then(stream => {
@@ -405,6 +436,10 @@
                     gameContainer.classList.add('visible');
                     roomInfoDisplay.style.display = 'flex';
                     roomIdText.textContent = roomId;
+                    
+                    // --- السطر المضاف هنا لإظهار الزر ---
+                    document.getElementById('panel-toggle-btn').style.display = 'block';
+
                 }).catch(err => alert("يجب السماح بالوصول إلى الميكروفون."));
         });
         
