@@ -16,9 +16,11 @@ app.get('/', (req, res) => {
 const rooms = {};
 let nightActionResolvers = {};
 
+// --- UTILITY FUNCTIONS ---
 function playSoundToRoom(roomId, soundFile) { io.to(roomId).emit('game-update', { event: 'play-sound', file: soundFile }); }
 function logToRoom(roomId, message, type = 'narrative') { io.to(roomId).emit('game-update', { event: 'log', message, type }); }
 
+// --- GAME STATE & LOGIC ---
 function createGameState(players, settings) {
     const playerNames = players.map(p => p.name);
     const gameState = {
@@ -199,10 +201,12 @@ io.on('connection', (socket) => {
         socket.to(roomId).emit('user-joined', socket.id, playerName);
     });
     
-    socket.on('start-game', (roomId) => {
+    socket.on('start-game', (roomId, settings) => {
         const room = rooms[roomId];
         if (room && room.hostId === socket.id && !room.gameState) {
+            room.settings = settings; // Update settings just in case
             room.gameState = createGameState(room.players, room.settings);
+            
             room.players.forEach(player => {
                 const roleInfo = room.gameState.roles[player.name];
                 io.to(player.id).emit('receive-role', roleInfo);
