@@ -9,25 +9,44 @@
     <link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@700&family=Lateef&display=swap" rel="stylesheet">
     <script src="/socket.io/socket.io.js"></script>
     <style>
+        :root {
+            --primary-red: #8B0000;
+            --primary-text: #f0e6d2;
+            --background-dark: #000;
+            --panel-width-mobile: 300px;
+        }
+
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        html, body { height: 100%; overflow: hidden; }
+        
+        html, body { 
+            height: 100%; 
+            width: 100%;
+            overflow: hidden; /* يمنع التمرير العام للصفحة */
+        }
+        
         body {
             font-family: 'Lateef', serif;
-            background: #000;
-            color: #f0e6d2;
-            display: flex; justify-content: center; align-items: center;
+            background: var(--background-dark);
+            color: var(--primary-text);
+            display: flex; 
+            justify-content: center; 
+            align-items: center;
         }
+
         #bg-video {
             position: fixed; right: 0; bottom: 0;
             min-width: 100%; min-height: 100%;
             z-index: -2; opacity: 0.3; object-fit: cover;
         }
+        
         body::before {
             content: ''; position: absolute;
             top: 0; left: 0; right: 0; bottom: 0;
             background: radial-gradient(circle, transparent 20%, black 100%);
             z-index: -1;
         }
+
+        /* --- شاشة الإعدادات (Setup Screen) --- */
         .setup-container {
             width: 100%; height: 100%;
             display: flex; justify-content: center; align-items: center;
@@ -39,34 +58,39 @@
             transition: opacity 0.5s ease, visibility 0.5s;
         }
         .setup-container.hidden { opacity: 0; visibility: hidden; pointer-events: none; }
+        
         .setup-box {
             background: rgba(10,10,10,0.8);
-            border: 2px solid #8B0000;
-            border-radius: 15px;
-            padding: 30px;
+            border: 2px solid var(--primary-red);
+            border-radius: 15px; padding: 30px;
             max-width: 600px; width: 100%;
             box-shadow: 0 0 30px rgba(139,0,0,0.5);
+            max-height: 90vh; /* يمنع الصندوق من أن يكون أطول من الشاشة */
+            overflow-y: auto; /* يسمح بالتمرير إذا كان المحتوى أكبر */
         }
+        
         .setup-box h1 {
             font-family: 'Cinzel Decorative', cursive;
-            color: #8B0000; font-size: 42px; text-align: center;
+            color: var(--primary-red); 
+            /* حجم خط متجاوب */
+            font-size: clamp(2.2rem, 8vw, 2.8rem); 
+            text-align: center;
             margin-bottom: 25px;
         }
+        
         .form-group { margin-bottom: 20px; }
         .form-group label {
             display: block; font-size: 24px; margin-bottom: 8px;
             font-family: 'Cinzel Decorative', cursive;
         }
+        
         .form-group input[type="text"], .form-group input[type="number"] {
-            width: 100%;
-            background: rgba(0,0,0,0.5);
-            border: 1px solid #555;
-            border-radius: 8px;
-            padding: 12px;
-            color: #f0e6d2;
-            font-family: 'Lateef', serif;
-            font-size: 22px;
+            width: 100%; background: rgba(0,0,0,0.5);
+            border: 1px solid #555; border-radius: 8px;
+            padding: 12px; color: var(--primary-text);
+            font-family: 'Lateef', serif; font-size: 22px;
         }
+        
         .mode-selector { display: flex; gap: 10px; margin-bottom: 20px; }
         .mode-btn {
             flex: 1; padding: 10px; font-size: 20px;
@@ -74,12 +98,15 @@
             background: #333; border: 1px solid #555; color: #aaa;
             cursor: pointer; transition: all 0.3s;
         }
-        .mode-btn.active { background: #8B0000; border-color: #ff0000; color: white; }
+        .mode-btn.active { background: var(--primary-red); border-color: #ff0000; color: white; }
+        
         #create-options, #join-options { display: none; }
-        .slider-group { display: flex; align-items: center; gap: 15px; }
-        input[type="range"] { flex: 1; -webkit-appearance: none; background: #444; height: 8px; border-radius: 4px; outline: none;}
-        input[type="range"]::-webkit-slider-thumb { -webkit-appearance: none; appearance: none; width: 20px; height: 20px; background: #8B0000; border-radius: 50%; cursor: pointer; border: 2px solid #ff0000;}
-        #player-count-display { font-size: 24px; font-weight: bold; color: #8B0000; }
+        
+        .slider-group { display: flex; align-items: center; gap: 15px; flex-wrap: wrap; }
+        input[type="range"] { flex: 1; -webkit-appearance: none; appearance: none; background: #444; height: 8px; border-radius: 4px; outline: none; min-width: 150px; }
+        input[type="range"]::-webkit-slider-thumb { -webkit-appearance: none; appearance: none; width: 20px; height: 20px; background: var(--primary-red); border-radius: 50%; cursor: pointer; border: 2px solid #ff0000;}
+        #player-count-display { font-size: 24px; font-weight: bold; color: var(--primary-red); }
+        
         .roles-config h3 { font-size: 26px; margin-bottom: 10px; font-family: 'Cinzel Decorative', cursive;}
         .role-item { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; padding: 5px; background: rgba(255,255,255,0.05); border-radius: 5px; }
         .role-name { font-size: 22px; }
@@ -90,36 +117,46 @@
             font-size: 20px; font-weight: bold; cursor: pointer;
         }
         .role-count { font-size: 22px; width: 30px; text-align: center; }
+        
         #final-action-btn {
-            width: 100%; padding: 15px; font-size: 24px;
-            margin-top: 20px;
-            background: linear-gradient(145deg, #8B0000, #6B0000);
+            width: 100%; padding: 15px; font-size: 24px; margin-top: 20px;
+            background: linear-gradient(145deg, var(--primary-red), #6B0000);
             border: none; color: white; border-radius: 8px;
             font-family: 'Cinzel Decorative', cursive; cursor: pointer;
         }
         #final-action-btn:disabled { background: #555; cursor: not-allowed; opacity: 0.6; }
 
+        /* --- شاشة اللعبة (Game Screen) --- */
         .game-container {
-            display: grid; grid-template-columns: 1fr 400px;
+            /* تخطيط للشاشات الكبيرة */
+            display: grid; grid-template-columns: 1fr 350px;
             width: 100%; height: 100%; gap: 20px; padding: 20px;
-            opacity: 0; transition: opacity 0.5s ease, visibility 0.5s;
+            opacity: 0; transition: opacity 0.5s ease;
             visibility: hidden; pointer-events: none; z-index: 2;
         }
         .game-container.visible { opacity: 1; visibility: visible; pointer-events: all; }
-        .game-table-area { position: relative; display: flex; justify-content: center; align-items: center; height: 100%; width: 100%; }
+        
+        .game-table-area { 
+            position: relative; 
+            display: flex; justify-content: center; align-items: center; 
+            height: 100%; width: 100%; 
+            /* يضمن عدم تجاوز المساحة المخصصة له */
+            overflow: hidden;
+        }
+        
         #game-table {
-            width: 90vmin; height: 90vmin;
-            max-width: 800px; max-height: 800px;
+            /* استخدام vmin يجعل الطاولة تستجيب لحجم الشاشة الأصغر (العرض أو الارتفاع) */
+            width: 85vmin; height: 85vmin;
+            max-width: 700px; max-height: 700px;
             background: radial-gradient(circle, #3a2a1a 0%, #1c140d 70%);
             border-radius: 50%; border: 15px solid #4a3a2a;
             box-shadow: 0 0 60px rgba(0,0,0,0.8), inset 0 0 100px rgba(0,0,0,0.9);
             position: relative; transition: box-shadow 1s ease;
         }
+        
         #game-table::before {
-            content: 'M';
-            font-family: 'Cinzel Decorative', cursive;
-            font-size: 18vmin;
-            color: rgba(139, 0, 0, 0.4);
+            content: 'M'; font-family: 'Cinzel Decorative', cursive;
+            font-size: 18vmin; color: rgba(139, 0, 0, 0.4);
             text-shadow: 0 0 20px rgba(139, 0, 0, 0.5);
             position: absolute; top: 50%; left: 50%;
             transform: translate(-50%, -50%);
@@ -128,62 +165,119 @@
             transition: color 1s ease, text-shadow 1s ease;
         }
         @keyframes pulse-glow { 0%, 100% { opacity: 0.7; } 50% { opacity: 1; text-shadow: 0 0 30px rgba(139, 0, 0, 0.8); } }
+        
         .player-seat {
-            position: absolute; width: 100px; height: 100px;
+            position: absolute; 
+            /* حجم متجاوب للاعبين */
+            width: clamp(70px, 12vmin, 100px);
+            height: clamp(70px, 12vmin, 100px);
             background: rgba(10, 10, 10, 0.7);
             border-radius: 50%; border: 3px solid rgba(240, 230, 210, 0.3);
             display: flex; flex-direction: column; justify-content: center; align-items: center;
-            padding: 10px; transition: all 0.5s ease;
+            padding: 5px; transition: all 0.5s ease;
         }
-        .player-status { font-size: 30px; line-height: 1; }
-        .player-name { font-size: 20px; font-family: 'Cinzel Decorative', cursive; color: #f0e6d2; text-shadow: 1px 1px 5px #000; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; width: 100%; text-align: center; }
+        
+        .player-status { font-size: clamp(24px, 5vmin, 30px); line-height: 1; }
+        .player-name { 
+            font-size: clamp(14px, 2.5vmin, 18px); 
+            font-family: 'Cinzel Decorative', cursive; color: var(--primary-text); 
+            text-shadow: 1px 1px 5px #000; white-space: nowrap; overflow: hidden; 
+            text-overflow: ellipsis; width: 100%; text-align: center; 
+        }
+        
         .player-seat.clickable { cursor: pointer; }
-        .player-seat.clickable:hover { border-color: #f0e6d2; transform: scale(1.1); box-shadow: 0 0 20px rgba(240, 230, 210, 0.5); }
+        .player-seat.clickable:hover { border-color: var(--primary-text); transform: scale(1.1) !important; box-shadow: 0 0 20px rgba(240, 230, 210, 0.5); }
         .player-seat--eliminated { opacity: 0.4; pointer-events: none; background: #333; }
-        .player-seat--speaking { border-color: #8B0000; box-shadow: 0 0 25px rgba(139, 0, 0, 0.9); transform: scale(1.1); }
-        .log-panel { background: rgba(0, 0, 0, 0.5); backdrop-filter: blur(5px); border: 1px solid rgba(139, 0, 0, 0.3); border-radius: 15px; padding: 20px; display: flex; flex-direction: column; overflow: hidden; }
+        .player-seat--speaking { border-color: var(--primary-red); box-shadow: 0 0 25px rgba(139, 0, 0, 0.9); transform: scale(1.1) !important; }
+        
+        .log-panel { 
+            background: rgba(0, 0, 0, 0.5); backdrop-filter: blur(5px); 
+            border: 1px solid rgba(139, 0, 0, 0.3); border-radius: 15px; 
+            padding: 20px; display: flex; flex-direction: column; 
+            overflow: hidden; 
+            /* انتقال سلس للحركة في الموبايل */
+            transition: transform 0.4s ease-in-out;
+        }
+
         .game-log { flex: 1; overflow-y: auto; display: flex; flex-direction: column-reverse; padding-right: 10px; }
         .log-message { margin-bottom: 15px; padding: 15px 20px; border-radius: 8px; opacity: 0; animation: fadeIn 0.5s ease forwards; font-family: 'Lateef', serif; font-size: 24px; line-height: 1.6; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        
         .modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.8); display: none; justify-content: center; align-items: center; z-index: 1000; backdrop-filter: blur(5px); transition: opacity 0.3s ease; }
         .modal.visible { display: flex; }
-        .modal-content { background: linear-gradient(145deg, #2a2a2a, #1a1a1a); border: 2px solid #8B0000; border-radius: 20px; padding: 40px; text-align: center; max-width: 450px; width: 90%; box-shadow: 0 20px 60px rgba(0, 0, 0, 0.7); }
-        .modal-button { background: linear-gradient(145deg, #8B0000, #6B0000); color: white; border: none; padding: 12px 30px; border-radius: 25px; font-family: 'Cinzel Decorative', cursive; font-size: 16px; cursor: pointer; transition: all 0.3s ease; margin-top: 20px; }
+        .modal-content { background: linear-gradient(145deg, #2a2a2a, #1a1a1a); border: 2px solid var(--primary-red); border-radius: 20px; padding: 40px; text-align: center; max-width: 450px; width: 90%; box-shadow: 0 20px 60px rgba(0, 0, 0, 0.7); }
+        .modal-button { background: linear-gradient(145deg, var(--primary-red), #6B0000); color: white; border: none; padding: 12px 30px; border-radius: 25px; font-family: 'Cinzel Decorative', cursive; font-size: 16px; cursor: pointer; transition: all 0.3s ease; margin-top: 20px; }
+        
         @keyframes revealCard { from { transform: translateY(100vh) rotateY(-180deg); opacity: 0; } to { transform: translateY(0) rotateY(0deg); opacity: 1; } }
         #role-card-modal .modal-content { animation: revealCard 0.8s ease-out forwards; }
+        
         .room-info { padding: 10px; text-align: center; border-bottom: 1px solid rgba(139, 0, 0, 0.3); margin-bottom: 10px; display: flex; justify-content: center; align-items: center; gap: 10px; font-size: 20px;}
         #copy-room-id-btn { background: #444; color: #fff; border: 1px solid #666; padding: 5px 10px; cursor: pointer; border-radius: 5px;}
+        
         .turn-indicator { padding: 15px; text-align: center; border-top: 1px solid rgba(139, 0, 0, 0.3); margin-top: 15px; }
         .turn-indicator.hidden { display: none; }
-        .turn-timer { font-size: 48px; font-family: 'Cinzel Decorative', cursive; color: #8B0000; margin-bottom: 10px; }
+        .turn-timer { font-size: 48px; font-family: 'Cinzel Decorative', cursive; color: var(--primary-red); margin-bottom: 10px; }
         .turn-player { font-size: 28px; margin-bottom: 15px; font-family: 'Lateef', serif; }
-        .skip-turn-btn { background: transparent; border: 1px solid #f0e6d2; color: #f0e6d2; padding: 8px 20px; cursor: pointer; font-family: 'Lateef', serif; font-size: 22px; transition: all 0.3s; border-radius: 5px;}
-        #panel-toggle-btn { display: none; }
+        .skip-turn-btn { background: transparent; border: 1px solid var(--primary-text); color: var(--primary-text); padding: 8px 20px; cursor: pointer; font-family: 'Lateef', serif; font-size: 22px; transition: all 0.3s; border-radius: 5px;}
+        
+        #panel-toggle-btn { display: none; /* يتم إظهاره بالميديا كويري */ }
 
-        @media (max-width: 800px) {
-            .game-container { grid-template-columns: 1fr; grid-template-rows: 1fr; padding: 0; gap: 0; }
-            .log-panel {
-                position: fixed; top: 0; right: -100%;
-                width: 80%; max-width: 350px; height: 100%;
-                z-index: 40; border-radius: 0; border-right: none; border-left: 2px solid rgba(139, 0, 0, 0.5);
-                transition: right 0.5s ease-in-out;
+        /* --- MEDIA QUERIES FOR RESPONSIVE DESIGN --- */
+        /* لأجهزة الموبايل والتابلت الصغيرة (أقل من 900 بكسل) */
+        @media (max-width: 900px) {
+            .game-container {
+                /* تغيير التخطيط ليصبح عمودياً ويملأ الشاشة */
+                grid-template-columns: 1fr;
+                grid-template-rows: 1fr; 
+                padding: 10px;
+                gap: 0;
             }
-            .log-panel.open { right: 0; }
+
+            .log-panel {
+                /* تحويل اللوحة إلى قائمة جانبية منسدلة */
+                position: fixed;
+                top: 0;
+                right: 0;
+                transform: translateX(100%); /* إخفاء اللوحة خارج الشاشة */
+                width: var(--panel-width-mobile);
+                max-width: 85%;
+                height: 100%;
+                z-index: 40;
+                border-radius: 0;
+                border-left: 2px solid rgba(139, 0, 0, 0.5);
+                border-right: none;
+            }
+
+            .log-panel.open {
+                transform: translateX(0); /* إظهار اللوحة */
+            }
+
             #panel-toggle-btn {
                 display: flex; justify-content: center; align-items: center;
-                position: fixed; top: 50%; right: 0;
+                position: fixed;
+                top: 50%;
+                right: 0;
                 transform: translateY(-50%);
                 width: 30px; height: 80px;
                 background: rgba(139,0,0,0.7);
                 border: 1px solid #ff0000; color: white;
                 border-radius: 10px 0 0 10px;
-                font-size: 24px; cursor: pointer; z-index: 50;
-                transition: right 0.5s ease-in-out;
+                font-size: 24px;
+                cursor: pointer;
+                z-index: 50;
+                transition: transform 0.4s ease-in-out;
             }
-            #panel-toggle-btn.open { right: 80%; max-width: 350px; }
+
+            #panel-toggle-btn.open {
+                /* تحريك الزر مع اللوحة */
+                transform: translateY(-50%) translateX(calc(-1 * var(--panel-width-mobile)));
+            }
+
             #game-table { width: 90vw; height: 90vw; }
-            .player-seat { width: 70px; height: 70px; }
             .player-name { font-size: 14px; }
+            .log-message { font-size: 20px; }
+            .turn-player { font-size: 24px; }
+            .turn-timer { font-size: 40px; }
         }
     </style>
 </head>
@@ -228,7 +322,7 @@
         <div class="game-table-area" id="game-table-area">
             <div id="game-table"></div>
         </div>
-     <div class="log-panel open" id="log-panel">
+        <div class="log-panel" id="log-panel">
             <div id="game-controls">
                  <div class="room-info" id="room-info-display" style="display: none;">
                     <span>كود الغرفة: <strong id="room-id-text"></strong></span>
@@ -245,7 +339,7 @@
         </div>
     </div>
     
-    <button id="panel-toggle-btn" style="display:none;">&#9664;</button>
+    <button id="panel-toggle-btn">&#9664;</button>
 
     <div id="game-over-modal" class="modal">
         <div class="modal-content">
@@ -410,10 +504,10 @@
         panelToggleBtn.addEventListener('click', () => {
             logPanel.classList.toggle('open');
             panelToggleBtn.classList.toggle('open');
-            if (panelToggleBtn.classList.contains('open')) {
-                panelToggleBtn.innerHTML = '&#9664;';
+            if (logPanel.classList.contains('open')) {
+                panelToggleBtn.innerHTML = '&#9654;'; // Right arrow
             } else {
-                panelToggleBtn.innerHTML = '&#9654;';
+                panelToggleBtn.innerHTML = '&#9664;'; // Left arrow
             }
         });
 
@@ -432,10 +526,6 @@
                     gameContainer.classList.add('visible');
                     roomInfoDisplay.style.display = 'flex';
                     roomIdText.textContent = roomId;
-                    
-                    // --- السطر المضاف هنا لإظهار الزر ---
-                    document.getElementById('panel-toggle-btn').style.display = 'block';
-
                 }).catch(err => alert("يجب السماح بالوصول إلى الميكروفون."));
         });
         
@@ -449,7 +539,9 @@
 
         socket.on('update-room-info', (roomInfo) => {
             const { players, hostId, gameState, settings } = roomInfo;
-            setupGameBoard(players.map(p => p.name));
+            // تأخير بسيط لإعطاء الـ layout فرصة للتحديث قبل حساب الأبعاد
+            setTimeout(() => setupGameBoard(players.map(p => p.name)), 100);
+            
             if (socket.id === hostId && players.length >= (settings ? settings.playerCount : 0) && !gameState) {
                 startGameBtnIngame.style.display = 'block';
             } else {
@@ -486,23 +578,32 @@
         
         function setupGameBoard(playerNamesArray) {
             const tableArea = document.getElementById('game-table-area');
-            tableArea.innerHTML = '<div id="game-table"></div>'; 
-            const table = document.getElementById('game-table');
+            let table = document.getElementById('game-table');
+            if (!table) {
+                tableArea.innerHTML = '<div id="game-table"></div>'; 
+                table = document.getElementById('game-table');
+            }
+            
+            // إزالة المقاعد القديمة
+            document.querySelectorAll('.player-seat').forEach(seat => seat.remove());
 
             playerNamesArray.forEach((playerName, i) => {
                 const angle = (i / playerNamesArray.length) * 2 * Math.PI - (Math.PI / 2);
-                const radius = table.offsetWidth / 2;
+                const radius = table.offsetWidth / 2.2; // تقليل النصف قطر قليلا لتجنب الحواف
                 const x = radius * Math.cos(angle);
                 const y = radius * Math.sin(angle);
 
                 const seat = document.createElement('div');
                 seat.className = 'player-seat';
                 seat.dataset.playerName = playerName;
-                seat.style.transform = `translate(-50%, -50%) translate(${x}px, ${y}px)`;
-                seat.style.top = '50%';
-                seat.style.left = '50%';
+                // تطبيق الـ transform مباشرة على العنصر
+                seat.style.position = 'absolute';
+                seat.style.top = `calc(50% + ${y}px)`;
+                seat.style.left = `calc(50% + ${x}px)`;
+                seat.style.transform = `translate(-50%, -50%)`;
                 
                 seat.innerHTML = `<span class="player-status">👤</span><span class="player-name">${playerName}</span>`;
+                // إضافة المقعد إلى حاوية الطاولة وليس الطاولة نفسها
                 tableArea.appendChild(seat);
             });
         }
@@ -646,6 +747,18 @@
             }
         }
         
+        // إعادة رسم الطاولة عند تغيير حجم الشاشة
+        window.addEventListener('resize', () => {
+            if (currentRoomId) {
+                // قد تحتاج إلى الحصول على قائمة اللاعبين الحالية مرة أخرى
+                // لكن كحل بسيط، يمكننا إعادة رسمها إذا كانت العناصر موجودة
+                const players = Array.from(document.querySelectorAll('.player-seat')).map(seat => seat.dataset.playerName);
+                if (players.length > 0) {
+                    setupGameBoard(players);
+                }
+            }
+        });
+
         initializeSetup();
     });
     </script>
