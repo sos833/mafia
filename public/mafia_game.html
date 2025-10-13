@@ -15,15 +15,12 @@
             --background-dark: #000;
             --panel-width-mobile: 300px;
         }
-
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        
         html, body { 
             height: 100%; 
             width: 100%;
-            overflow: hidden; /* يمنع التمرير العام للصفحة */
+            overflow: hidden;
         }
-        
         body {
             font-family: 'Lateef', serif;
             background: var(--background-dark);
@@ -32,21 +29,17 @@
             justify-content: center; 
             align-items: center;
         }
-
         #bg-video {
             position: fixed; right: 0; bottom: 0;
             min-width: 100%; min-height: 100%;
             z-index: -2; opacity: 0.3; object-fit: cover;
         }
-        
         body::before {
             content: ''; position: absolute;
             top: 0; left: 0; right: 0; bottom: 0;
             background: radial-gradient(circle, transparent 20%, black 100%);
             z-index: -1;
         }
-
-        /* --- شاشة الإعدادات (Setup Screen) --- */
         .setup-container {
             width: 100%; height: 100%;
             display: flex; justify-content: center; align-items: center;
@@ -58,39 +51,33 @@
             transition: opacity 0.5s ease, visibility 0.5s;
         }
         .setup-container.hidden { opacity: 0; visibility: hidden; pointer-events: none; }
-        
         .setup-box {
             background: rgba(10,10,10,0.8);
             border: 2px solid var(--primary-red);
             border-radius: 15px; padding: 30px;
             max-width: 600px; width: 100%;
             box-shadow: 0 0 30px rgba(139,0,0,0.5);
-            max-height: 90vh; /* يمنع الصندوق من أن يكون أطول من الشاشة */
-            overflow-y: auto; /* يسمح بالتمرير إذا كان المحتوى أكبر */
+            max-height: 90vh;
+            overflow-y: auto;
         }
-        
         .setup-box h1 {
             font-family: 'Cinzel Decorative', cursive;
             color: var(--primary-red); 
-            /* حجم خط متجاوب */
             font-size: clamp(2.2rem, 8vw, 2.8rem); 
             text-align: center;
             margin-bottom: 25px;
         }
-        
         .form-group { margin-bottom: 20px; }
         .form-group label {
             display: block; font-size: 24px; margin-bottom: 8px;
             font-family: 'Cinzel Decorative', cursive;
         }
-        
         .form-group input[type="text"], .form-group input[type="number"] {
             width: 100%; background: rgba(0,0,0,0.5);
             border: 1px solid #555; border-radius: 8px;
             padding: 12px; color: var(--primary-text);
             font-family: 'Lateef', serif; font-size: 22px;
         }
-        
         .mode-selector { display: flex; gap: 10px; margin-bottom: 20px; }
         .mode-btn {
             flex: 1; padding: 10px; font-size: 20px;
@@ -99,14 +86,11 @@
             cursor: pointer; transition: all 0.3s;
         }
         .mode-btn.active { background: var(--primary-red); border-color: #ff0000; color: white; }
-        
         #create-options, #join-options { display: none; }
-        
         .slider-group { display: flex; align-items: center; gap: 15px; flex-wrap: wrap; }
         input[type="range"] { flex: 1; -webkit-appearance: none; appearance: none; background: #444; height: 8px; border-radius: 4px; outline: none; min-width: 150px; }
         input[type="range"]::-webkit-slider-thumb { -webkit-appearance: none; appearance: none; width: 20px; height: 20px; background: var(--primary-red); border-radius: 50%; cursor: pointer; border: 2px solid #ff0000;}
         #player-count-display { font-size: 24px; font-weight: bold; color: var(--primary-red); }
-        
         .roles-config h3 { font-size: 26px; margin-bottom: 10px; font-family: 'Cinzel Decorative', cursive;}
         .role-item { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; padding: 5px; background: rgba(255,255,255,0.05); border-radius: 5px; }
         .role-name { font-size: 22px; }
@@ -117,7 +101,6 @@
             font-size: 20px; font-weight: bold; cursor: pointer;
         }
         .role-count { font-size: 22px; width: 30px; text-align: center; }
-        
         #final-action-btn {
             width: 100%; padding: 15px; font-size: 24px; margin-top: 20px;
             background: linear-gradient(145deg, var(--primary-red), #6B0000);
@@ -125,27 +108,20 @@
             font-family: 'Cinzel Decorative', cursive; cursor: pointer;
         }
         #final-action-btn:disabled { background: #555; cursor: not-allowed; opacity: 0.6; }
-
-        /* --- شاشة اللعبة (Game Screen) --- */
         .game-container {
-            /* تخطيط للشاشات الكبيرة */
             display: grid; grid-template-columns: 1fr 350px;
             width: 100%; height: 100%; gap: 20px; padding: 20px;
             opacity: 0; transition: opacity 0.5s ease;
             visibility: hidden; pointer-events: none; z-index: 2;
         }
         .game-container.visible { opacity: 1; visibility: visible; pointer-events: all; }
-        
         .game-table-area { 
             position: relative; 
             display: flex; justify-content: center; align-items: center; 
             height: 100%; width: 100%; 
-            /* يضمن عدم تجاوز المساحة المخصصة له */
             overflow: hidden;
         }
-        
         #game-table {
-            /* استخدام vmin يجعل الطاولة تستجيب لحجم الشاشة الأصغر (العرض أو الارتفاع) */
             width: 85vmin; height: 85vmin;
             max-width: 700px; max-height: 700px;
             background: radial-gradient(circle, #3a2a1a 0%, #1c140d 70%);
@@ -153,7 +129,6 @@
             box-shadow: 0 0 60px rgba(0,0,0,0.8), inset 0 0 100px rgba(0,0,0,0.9);
             position: relative; transition: box-shadow 1s ease;
         }
-        
         #game-table::before {
             content: 'M'; font-family: 'Cinzel Decorative', cursive;
             font-size: 18vmin; color: rgba(139, 0, 0, 0.4);
@@ -165,10 +140,8 @@
             transition: color 1s ease, text-shadow 1s ease;
         }
         @keyframes pulse-glow { 0%, 100% { opacity: 0.7; } 50% { opacity: 1; text-shadow: 0 0 30px rgba(139, 0, 0, 0.8); } }
-        
         .player-seat {
             position: absolute; 
-            /* حجم متجاوب للاعبين */
             width: clamp(70px, 12vmin, 100px);
             height: clamp(70px, 12vmin, 100px);
             background: rgba(10, 10, 10, 0.7);
@@ -176,7 +149,6 @@
             display: flex; flex-direction: column; justify-content: center; align-items: center;
             padding: 5px; transition: all 0.5s ease;
         }
-        
         .player-status { font-size: clamp(24px, 5vmin, 30px); line-height: 1; }
         .player-name { 
             font-size: clamp(14px, 2.5vmin, 18px); 
@@ -184,101 +156,69 @@
             text-shadow: 1px 1px 5px #000; white-space: nowrap; overflow: hidden; 
             text-overflow: ellipsis; width: 100%; text-align: center; 
         }
-        
         .player-seat.clickable { cursor: pointer; }
         .player-seat.clickable:hover { border-color: var(--primary-text); transform: scale(1.1) !important; box-shadow: 0 0 20px rgba(240, 230, 210, 0.5); }
         .player-seat--eliminated { opacity: 0.4; pointer-events: none; background: #333; }
         .player-seat--speaking { border-color: var(--primary-red); box-shadow: 0 0 25px rgba(139, 0, 0, 0.9); transform: scale(1.1) !important; }
-        
         .log-panel { 
             background: rgba(0, 0, 0, 0.5); backdrop-filter: blur(5px); 
             border: 1px solid rgba(139, 0, 0, 0.3); border-radius: 15px; 
             padding: 20px; display: flex; flex-direction: column; 
             overflow: hidden; 
-            /* انتقال سلس للحركة في الموبايل */
             transition: transform 0.4s ease-in-out;
         }
-
         .game-log { flex: 1; overflow-y: auto; display: flex; flex-direction: column-reverse; padding-right: 10px; }
         .log-message { margin-bottom: 15px; padding: 15px 20px; border-radius: 8px; opacity: 0; animation: fadeIn 0.5s ease forwards; font-family: 'Lateef', serif; font-size: 24px; line-height: 1.6; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
-        
         .modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.8); display: none; justify-content: center; align-items: center; z-index: 1000; backdrop-filter: blur(5px); transition: opacity 0.3s ease; }
         .modal.visible { display: flex; }
         .modal-content { background: linear-gradient(145deg, #2a2a2a, #1a1a1a); border: 2px solid var(--primary-red); border-radius: 20px; padding: 40px; text-align: center; max-width: 450px; width: 90%; box-shadow: 0 20px 60px rgba(0, 0, 0, 0.7); }
         .modal-button { background: linear-gradient(145deg, var(--primary-red), #6B0000); color: white; border: none; padding: 12px 30px; border-radius: 25px; font-family: 'Cinzel Decorative', cursive; font-size: 16px; cursor: pointer; transition: all 0.3s ease; margin-top: 20px; }
-        
         @keyframes revealCard { from { transform: translateY(100vh) rotateY(-180deg); opacity: 0; } to { transform: translateY(0) rotateY(0deg); opacity: 1; } }
         #role-card-modal .modal-content { animation: revealCard 0.8s ease-out forwards; }
-        
         .room-info { padding: 10px; text-align: center; border-bottom: 1px solid rgba(139, 0, 0, 0.3); margin-bottom: 10px; display: flex; justify-content: center; align-items: center; gap: 10px; font-size: 20px;}
         #copy-room-id-btn { background: #444; color: #fff; border: 1px solid #666; padding: 5px 10px; cursor: pointer; border-radius: 5px;}
-        
         .turn-indicator { padding: 15px; text-align: center; border-top: 1px solid rgba(139, 0, 0, 0.3); margin-top: 15px; }
         .turn-indicator.hidden { display: none; }
         .turn-timer { font-size: 48px; font-family: 'Cinzel Decorative', cursive; color: var(--primary-red); margin-bottom: 10px; }
         .turn-player { font-size: 28px; margin-bottom: 15px; font-family: 'Lateef', serif; }
-        .skip-turn-btn { background: transparent; border: 1px solid var(--primary-text); color: var(--primary-text); padding: 8px 20px; cursor: pointer; font-family: 'Lateef', serif; font-size: 22px; transition: all 0.3s; border-radius: 5px;}
-        
-        #panel-toggle-btn { display: none; /* يتم إظهاره بالميديا كويري */ }
+        #panel-toggle-btn { display: none; }
 
-        /* --- MEDIA QUERIES FOR RESPONSIVE DESIGN --- */
-        /* لأجهزة الموبايل والتابلت الصغيرة (أقل من 900 بكسل) */
-        @media (max-width: 900px) {
-            .game-container {
-                /* تغيير التخطيط ليصبح عمودياً ويملأ الشاشة */
-                grid-template-columns: 1fr;
-                grid-template-rows: 1fr; 
-                padding: 10px;
-                gap: 0;
-            }
-
-            .log-panel {
-                /* تحويل اللوحة إلى قائمة جانبية منسدلة */
-                position: fixed;
-                top: 0;
-                right: 0;
-                transform: translateX(100%); /* إخفاء اللوحة خارج الشاشة */
-                width: var(--panel-width-mobile);
-                max-width: 85%;
-                height: 100%;
-                z-index: 40;
-                border-radius: 0;
-                border-left: 2px solid rgba(139, 0, 0, 0.5);
-                border-right: none;
-            }
-
-            .log-panel.open {
-                transform: translateX(0); /* إظهار اللوحة */
-            }
-
-            #panel-toggle-btn {
-                display: flex; justify-content: center; align-items: center;
-                position: fixed;
-                top: 50%;
-                right: 0;
-                transform: translateY(-50%);
-                width: 30px; height: 80px;
-                background: rgba(139,0,0,0.7);
-                border: 1px solid #ff0000; color: white;
-                border-radius: 10px 0 0 10px;
-                font-size: 24px;
-                cursor: pointer;
-                z-index: 50;
-                transition: transform 0.4s ease-in-out;
-            }
-
-            #panel-toggle-btn.open {
-                /* تحريك الزر مع اللوحة */
-                transform: translateY(-50%) translateX(calc(-1 * var(--panel-width-mobile)));
-            }
-
-            #game-table { width: 90vw; height: 90vw; }
-            .player-name { font-size: 14px; }
-            .log-message { font-size: 20px; }
-            .turn-player { font-size: 24px; }
-            .turn-timer { font-size: 40px; }
+        /* --- Toast Notification Styles --- */
+        .toast-notification {
+            position: fixed;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: rgba(0, 0, 0, 0.85);
+            color: white;
+            font-size: 20px;
+            padding: 12px 25px;
+            border-radius: 25px;
+            border: 1px solid var(--primary-red);
+            box-shadow: 0 0 15px rgba(139,0,0,0.5);
+            z-index: 2000;
+            animation: fadeInOut 3s ease-in-out forwards;
         }
+
+        @keyframes fadeInOut {
+            0%, 100% { opacity: 0; transform: translate(-50%, 10px); }
+            15%, 85% { opacity: 1; transform: translate(-50%, 0); }
+        }
+
+        @media (max-width: 900px) {
+            .game-container { grid-template-columns: 1fr; grid-template-rows: 1fr; padding: 10px; gap: 0; }
+            .log-panel { position: fixed; top: 0; right: 0; transform: translateX(100%); width: var(--panel-width-mobile); max-width: 85%; height: 100%; z-index: 40; border-radius: 0; border-left: 2px solid rgba(139, 0, 0, 0.5); border-right: none; }
+            .log-panel.open { transform: translateX(0); }
+            #panel-toggle-btn { display: flex; justify-content: center; align-items: center; position: fixed; top: 50%; right: 0; transform: translateY(-50%); width: 30px; height: 80px; background: rgba(139,0,0,0.7); border: 1px solid #ff0000; color: white; border-radius: 10px 0 0 10px; font-size: 24px; cursor: pointer; z-index: 50; transition: transform 0.4s ease-in-out; }
+            #panel-toggle-btn.open { transform: translateY(-50%) translateX(calc(-1 * var(--panel-width-mobile))); }
+            #game-table { width: 90vw; height: 90vw; }
+        }
+        .log-message.log-system {
+    background-color: rgba(100, 100, 150, 0.15); /* لون أزرق خفيف */
+    border-left: 3px solid #87CEEB; /* خط أزرق على اليسار */
+    font-style: italic; /* اجعل الخط مائلاً */
+}
     </style>
 </head>
 <body>
@@ -289,29 +229,35 @@
     <div class="setup-container" id="setup-container">
         <div class="setup-box">
             <h1>طاولة المافيا</h1>
+            <div style="display: flex; gap: 10px; margin-bottom: 20px;">
+                <button class="mode-btn active" id="online-mode-btn">لعب عبر الإنترنت</button>
+                <button class="mode-btn" id="offline-mode-btn">تدريب فردي</button>
+            </div>
             <div class="form-group">
                 <label for="player-name-input">اسمك</label>
-                <input type="text" id="player-name-input">
+                <input type="text" id="player-name-input" maxlength="15">
             </div>
-            <div class="mode-selector">
-                <button class="mode-btn active" id="create-btn">إنشاء لعبة</button>
-                <button class="mode-btn" id="join-btn">الانضمام للعبة</button>
-            </div>
-            <div id="create-options">
-                <div class="form-group slider-group">
-                    <label>عدد اللاعبين:</label>
-                    <input type="range" id="player-count-slider" min="4" max="12" value="4">
-                    <span id="player-count-display">4</span>
+            <div id="online-options-container">
+                <div class="mode-selector">
+                    <button class="mode-btn active" id="create-btn">إنشاء لعبة</button>
+                    <button class="mode-btn" id="join-btn">الانضمام للعبة</button>
                 </div>
-                <div class="form-group roles-config">
-                    <h3>توزيع الأدوار (<span id="total-roles">0</span>/<span id="needed-roles">4</span>)</h3>
-                    <div id="roles-list"></div>
+                <div id="create-options">
+                    <div class="form-group slider-group">
+                        <label>عدد اللاعبين:</label>
+                        <input type="range" id="player-count-slider" min="4" max="12" value="4">
+                        <span id="player-count-display">4</span>
+                    </div>
+                    <div class="form-group roles-config">
+                        <h3>توزيع الأدوار (<span id="total-roles">0</span>/<span id="needed-roles">4</span>)</h3>
+                        <div id="roles-list"></div>
+                    </div>
                 </div>
-            </div>
-            <div id="join-options">
-                <div class="form-group">
-                    <label for="room-id-input">كود الغرفة</label>
-                    <input type="text" id="room-id-input">
+                <div id="join-options">
+                    <div class="form-group">
+                        <label for="room-id-input">كود الغرفة</label>
+                        <input type="text" id="room-id-input">
+                    </div>
                 </div>
             </div>
             <button id="final-action-btn">إنشاء اللعبة</button>
@@ -358,31 +304,40 @@
         </div>
     </div>
 
+    <script src="/game-engine.js"></script>
+    <script src="/ai-logic.js"></script>
+
     <script>
     document.addEventListener('DOMContentLoaded', function() {
-        // --- 1. ELEMENT DECLARATIONS ---
-        const socket = io();
+        // --- 1. DECLARATIONS ---
+        const socket = io({ autoConnect: true });
         const setupContainer = document.getElementById('setup-container');
         const playerNameInput = document.getElementById('player-name-input');
+        const finalActionBtn = document.getElementById('final-action-btn');
+        const gameContainer = document.getElementById('game-container');
+        const closeRoleCardBtn = document.getElementById('close-role-card-btn');
+        const gameOverModal = document.getElementById('game-over-modal');
+        const exitToMenuBtn = document.getElementById('exit-to-menu-btn');
+        
+        const onlineModeBtn = document.getElementById('online-mode-btn');
+        const onlineOptionsContainer = document.getElementById('online-options-container');
         const roomIdInput = document.getElementById('room-id-input');
         const createBtn = document.getElementById('create-btn');
         const joinBtn = document.getElementById('join-btn');
         const createOptions = document.getElementById('create-options');
         const joinOptions = document.getElementById('join-options');
-        const finalActionBtn = document.getElementById('final-action-btn');
         const playerCountSlider = document.getElementById('player-count-slider');
         const playerCountDisplay = document.getElementById('player-count-display');
         const rolesList = document.getElementById('roles-list');
         const totalRolesSpan = document.getElementById('total-roles');
         const neededRolesSpan = document.getElementById('needed-roles');
-        const gameContainer = document.getElementById('game-container');
         const startGameBtnIngame = document.getElementById('start-game-btn-ingame');
-        const closeRoleCardBtn = document.getElementById('close-role-card-btn');
-        const gameOverModal = document.getElementById('game-over-modal');
-        const exitToMenuBtn = document.getElementById('exit-to-menu-btn');
         const roomInfoDisplay = document.getElementById('room-info-display');
         const roomIdText = document.getElementById('room-id-text');
         const copyRoomIdBtn = document.getElementById('copy-room-id-btn');
+
+        const offlineModeBtn = document.getElementById('offline-mode-btn');
+
         const panelToggleBtn = document.getElementById('panel-toggle-btn');
         const logPanel = document.getElementById('log-panel');
         
@@ -392,11 +347,75 @@
         let peerConnections = {};
         let currentRoomId = null;
 
-        // --- 2. SETUP SCREEN LOGIC ---
-        function initializeSetup() {
-            createOptions.style.display = 'block';
-            joinOptions.style.display = 'none';
+        // --- 2. UTILITY FUNCTIONS ---
+        function delay(ms) { return new Promise(resolve => setTimeout(resolve, ms)); }
+
+        function showToast(message) {
+            const existingToast = document.querySelector('.toast-notification');
+            if (existingToast) {
+                existingToast.remove();
+            }
+            const toast = document.createElement('div');
+            toast.className = 'toast-notification';
+            toast.textContent = message;
+            document.body.appendChild(toast);
+            setTimeout(() => {
+                toast.remove();
+            }, 3000);
+        }
+        
+        // --- 3. MODE SWITCHING LOGIC ---
+        onlineModeBtn.addEventListener('click', () => {
+            if (onlineModeBtn.classList.contains('active')) return;
+            onlineModeBtn.classList.add('active');
+            offlineModeBtn.classList.remove('active');
+            
+            onlineOptionsContainer.style.display = 'block';
+            finalActionBtn.textContent = createBtn.classList.contains('active') ? 'إنشاء اللعبة' : 'الانضمام للعبة';
+            
+            if (!socket.connected) socket.connect();
+            initializeOnlineSetup();
+        });
+
+        offlineModeBtn.addEventListener('click', () => {
+            if (offlineModeBtn.classList.contains('active')) return;
+            offlineModeBtn.classList.add('active');
+            onlineModeBtn.classList.remove('active');
+
+            onlineOptionsContainer.style.display = 'none';
+            finalActionBtn.textContent = 'ابدأ التدريب';
+            
+            if (socket.connected) socket.disconnect();
+        });
+
+        // --- 4. MAIN ACTION BUTTON ---
+        finalActionBtn.addEventListener('click', () => {
+            const playerName = playerNameInput.value.trim();
+            if (!playerName) return alert('الرجاء إدخال اسمك.');
+
+            if (offlineModeBtn.classList.contains('active')) {
+                startOfflineGame(playerName);
+            } else {
+                if (createBtn.classList.contains('active')) {
+                    const settings = {
+                        playerCount: parseInt(playerCountSlider.value),
+                        roles: roleCounts
+                    };
+                    socket.emit('create-game', playerName, settings);
+                } else {
+                    const roomId = roomIdInput.value.trim().toUpperCase();
+                    if (!roomId) return alert('الرجاء إدخال كود الغرفة.');
+                    socket.emit('join-room', roomId, playerName);
+                }
+            }
+        });
+
+        // --- 5. ONLINE MODE SETUP ---
+        function initializeOnlineSetup() {
+            createBtn.classList.add('active'); joinBtn.classList.remove('active');
+            createOptions.style.display = 'block'; joinOptions.style.display = 'none';
             finalActionBtn.textContent = 'إنشاء اللعبة';
+            
             roleCounts = {};
             availableRoles.forEach(role => {
                 roleCounts[role] = (role === 'المافيا' || role === 'المحقق' || role === 'الطبيب') ? 1 : 0;
@@ -417,8 +436,8 @@
         }
 
         function updateRoleCount(role, action) {
-            if (action === 'plus') { roleCounts[role]++; } 
-            else if (action === 'minus' && roleCounts[role] > 0) { roleCounts[role]--; }
+            if (action === 'plus') roleCounts[role]++;
+            else if (action === 'minus' && roleCounts[role] > 0) roleCounts[role]--;
             document.getElementById(`count-${role}`).textContent = roleCounts[role];
             updateRoleValidation();
         }
@@ -428,13 +447,8 @@
             const totalRoles = Object.values(roleCounts).reduce((a, b) => a + b, 0);
             totalRolesSpan.textContent = totalRoles;
             neededRolesSpan.textContent = playerCount;
-            if (totalRoles === playerCount) {
-                finalActionBtn.disabled = false;
-                totalRolesSpan.style.color = '#00ff00';
-            } else {
-                finalActionBtn.disabled = true;
-                totalRolesSpan.style.color = '#ff0000';
-            }
+            finalActionBtn.disabled = totalRoles !== playerCount;
+            totalRolesSpan.style.color = totalRoles === playerCount ? '#00ff00' : '#ff0000';
         }
         
         createBtn.addEventListener('click', () => {
@@ -466,145 +480,201 @@
                 updateRoleCount(e.target.dataset.role, e.target.dataset.action);
             }
         });
-
-        finalActionBtn.addEventListener('click', () => {
-            const playerName = playerNameInput.value.trim();
-            if (!playerName) return alert('الرجاء إدخال اسمك.');
-            
-            if (createBtn.classList.contains('active')) {
-                const settings = {
-                    playerCount: parseInt(playerCountSlider.value),
-                    roles: roleCounts,
-                    speakingTime: 60,
-                    votingTime: 30,
-                };
-                socket.emit('create-game', playerName, settings);
-            } else {
-                const roomId = roomIdInput.value.trim().toUpperCase();
-                if (!roomId) return alert('الرجاء إدخال كود الغرفة.');
-                socket.emit('join-room', roomId, playerName);
-            }
-        });
         
         copyRoomIdBtn.addEventListener('click', () => {
             navigator.clipboard.writeText(roomIdText.textContent).then(() => {
-                alert('تم نسخ كود الغرفة!');
+                showToast('✅ تم نسخ الكود');
+            }).catch(err => {
+                showToast('❌ فشل النسخ');
             });
         });
 
+        startGameBtnIngame.addEventListener('click', () => {
+            if (currentRoomId) socket.emit('start-game', currentRoomId);
+        });
+
+        // --- 6. OFFLINE MODE LOGIC ---
+        async function startOfflineGame(humanPlayerName) {
+            setupContainer.classList.add('hidden');
+            gameContainer.classList.add('visible');
+            roomInfoDisplay.style.display = 'none';
+
+            const botNames = ['علي', 'فاطمة', 'خالد', 'سارة', 'يوسف', 'نورة'];
+            const playerCount = 7;
+            const allPlayerNames = [humanPlayerName, ...botNames.slice(0, playerCount - 1)];
+            
+            const gameSettings = { roles: { 'المافيا': 2, 'المحقق': 1, 'الطبيب': 1, 'مواطن': 3 } };
+
+            const game = new OfflineGameManager(allPlayerNames, humanPlayerName, gameSettings);
+            game.assignRoles();
+
+            const bots = allPlayerNames
+                .filter(name => name !== humanPlayerName)
+                .map(name => new AIBot(name, game.gameState.roles[name]));
+
+            setupGameBoard(allPlayerNames);
+            const humanRole = game.gameState.roles[humanPlayerName];
+            document.getElementById('role-title').textContent = humanRole.title;
+            document.getElementById('role-icon').textContent = humanRole.icon;
+            document.getElementById('role-description').textContent = humanRole.description;
+            document.getElementById('role-card-modal').classList.add('visible');
+
+            await new Promise(resolve => {
+                const originalOnclick = closeRoleCardBtn.onclick;
+                closeRoleCardBtn.onclick = () => {
+                    document.getElementById('role-card-modal').classList.remove('visible');
+                    closeRoleCardBtn.onclick = originalOnclick;
+                    resolve();
+                };
+            });
+
+            await runOfflineGameLoop(game, bots);
+        }
+
+        async function runOfflineGameLoop(game, bots) {
+            while (!game.gameState.gameOver) {
+                addLogMessage(`اليوم ${game.gameState.dayCount} | حل الليل المظلم...`, 'narrative');
+                await delay(3000);
+
+                let nightActions = {};
+                bots.filter(bot => game.gameState.players.find(p => p.name === bot.name && p.isAlive))
+                    .forEach(bot => {
+                        const decision = bot.makeNightDecision(game.gameState);
+                        if (decision) {
+                            if (bot.role.title === 'المافيا') nightActions.mafiaTarget = decision;
+                            if (bot.role.title === 'المحقق') nightActions.detectiveTarget = decision;
+                            if (bot.role.title === 'الطبيب') nightActions.doctorSave = decision;
+                        }
+                    });
+
+                const humanPlayer = game.gameState.players.find(p => p.isHuman && p.isAlive);
+                if (humanPlayer) {
+                    const humanRoleTitle = game.gameState.roles[humanPlayer.name].title;
+                    const humanAction = await getHumanNightAction(humanRoleTitle, game.gameState);
+                    if (humanAction) {
+                        if (humanRoleTitle === 'المافيا') nightActions.mafiaTarget = humanAction;
+                        if (humanRoleTitle === 'المحقق') nightActions.detectiveTarget = humanAction;
+                        if (humanRoleTitle === 'الطبيب') nightActions.doctorSave = humanAction;
+                    }
+                }
+                
+                const nightResults = game.processNightResults(nightActions);
+                addLogMessage("استيقظت المدينة...", 'narrative');
+                await delay(3000);
+
+                if (nightResults.victimName) {
+                    addLogMessage(`بعد ليلة مرعبة، تم العثور على ${nightResults.victimName} مقتولاً!`, 'alert');
+                    document.querySelector(`[data-player-name="${nightResults.victimName}"] .player-status`).textContent = '💀';
+                    document.querySelector(`[data-player-name="${nightResults.victimName}"]`).classList.add('player-seat--eliminated');
+                } else {
+                    addLogMessage('مرت الليلة بسلام، ولم يمت أحد.', 'narrative');
+                }
+                await delay(4000);
+
+                if (game.checkWinCondition()) break;
+
+                addLogMessage('حان وقت تحديد من سيتم طرده من المدينة.', 'narrative');
+                await delay(2000);
+
+                let votes = {};
+                bots.filter(bot => game.gameState.players.find(p => p.name === bot.name && p.isAlive))
+                    .forEach(bot => {
+                        const vote = bot.makeVoteDecision(game.gameState);
+                        if (vote) votes[bot.name] = vote;
+                    });
+                
+                if (humanPlayer && game.gameState.players.find(p => p.name === humanPlayer.name && p.isAlive)) {
+                    votes[humanPlayer.name] = await getHumanVote(game.gameState);
+                }
+
+                const votingResults = game.processVotingResults(votes);
+                if (votingResults.eliminatedPlayer) {
+                    const role = game.gameState.roles[votingResults.eliminatedPlayer].title;
+                    addLogMessage(`قررت المدينة طرد ${votingResults.eliminatedPlayer}. لقد كان... ${role}!`, 'alert');
+                    document.querySelector(`[data-player-name="${votingResults.eliminatedPlayer}"] .player-status`).textContent = '💀';
+                    document.querySelector(`[data-player-name="${votingResults.eliminatedPlayer}"]`).classList.add('player-seat--eliminated');
+                } else {
+                    addLogMessage('لم يتمكن أهل المدينة من الاتفاق على قرار بسبب تعادل الأصوات.', 'narrative');
+                }
+                await delay(4000);
+                
+                if (game.checkWinCondition()) break;
+                game.gameState.dayCount++;
+            }
+
+            addLogMessage(`انتهت اللعبة! الفائز هو فريق: ${game.gameState.winner}`, 'system');
+            document.getElementById('game-over-title').textContent = "انتهت اللعبة!";
+            document.getElementById('game-over-message').textContent = `فريق "${game.gameState.winner}" قد فاز!`;
+            gameOverModal.classList.add('visible');
+        }
+
+        function getHumanNightAction(role, gameState) {
+            return new Promise(resolve => {
+                const nightRoles = ['المافيا', 'المحقق', 'الطبيب'];
+                if (!nightRoles.includes(role)) return resolve(null);
+                
+                const prompt = gameState.roles[gameState.players.find(p=>p.isHuman).name].description;
+                addLogMessage(prompt, 'system');
+                
+                activatePlayerButtons((chosenPlayer) => {
+                    if (role === 'المحقق' && chosenPlayer === playerNameInput.value.trim()) {
+                         addLogMessage('لا يمكنك التحقيق مع نفسك.', 'system'); return;
+                    }
+                    deactivatePlayerButtons();
+                    resolve(chosenPlayer);
+                });
+            });
+        }
+
+        function getHumanVote(gameState) {
+            return new Promise(resolve => {
+                addLogMessage('اختر من تريد التصويت ضده.', 'system');
+                activatePlayerButtons(chosenPlayer => {
+                    deactivatePlayerButtons();
+                    resolve(chosenPlayer);
+                });
+            });
+        }
+
+        // --- 7. COMMON UI & EVENT HANDLERS ---
         exitToMenuBtn.addEventListener('click', () => { window.location.reload(); });
         closeRoleCardBtn.addEventListener('click', () => { document.getElementById('role-card-modal').classList.remove('visible'); });
 
-        startGameBtnIngame.addEventListener('click', () => {
-            if (currentRoomId) {
-                socket.emit('start-game', currentRoomId);
-            }
-        });
-        
         panelToggleBtn.addEventListener('click', () => {
             logPanel.classList.toggle('open');
             panelToggleBtn.classList.toggle('open');
-            if (logPanel.classList.contains('open')) {
-                panelToggleBtn.innerHTML = '&#9654;'; // Right arrow
-            } else {
-                panelToggleBtn.innerHTML = '&#9664;'; // Left arrow
-            }
+            panelToggleBtn.innerHTML = logPanel.classList.contains('open') ? '&#9654;' : '&#9664;';
         });
-
-        // --- 3. SOCKET.IO & GAME HANDLERS ---
-        socket.on('game-created', (roomId) => {
-            const playerName = playerNameInput.value.trim();
-            socket.emit('join-room', roomId, playerName);
-        });
-
-       socket.on('joined-successfully', (roomId) => {
-            currentRoomId = roomId;
-            navigator.mediaDevices.getUserMedia({ audio: true, video: false })
-                .then(stream => {
-                    localStream = stream;
-                    setupContainer.classList.add('hidden');
-                    gameContainer.classList.add('visible');
-                    roomInfoDisplay.style.display = 'flex';
-                    roomIdText.textContent = roomId;
-                }).catch(err => alert("يجب السماح بالوصول إلى الميكروفون."));
-        });
-        
-        socket.on('error-message', (message) => { alert(message); });
-        
-        socket.on('game-over', (message) => {
-            deactivatePlayerButtons();
-            document.getElementById('game-over-message').textContent = message;
-            gameOverModal.classList.add('visible');
-        });
-
-        socket.on('update-room-info', (roomInfo) => {
-            const { players, hostId, gameState, settings } = roomInfo;
-            // تأخير بسيط لإعطاء الـ layout فرصة للتحديث قبل حساب الأبعاد
-            setTimeout(() => setupGameBoard(players.map(p => p.name)), 100);
-            
-            if (socket.id === hostId && players.length >= (settings ? settings.playerCount : 0) && !gameState) {
-                startGameBtnIngame.style.display = 'block';
-            } else {
-                startGameBtnIngame.style.display = 'none';
-            }
-        });
-        
-        let soundQueue = [];
-        let isSoundPlaying = false;
-        
-        function processSoundQueue() {
-            if (isSoundPlaying || soundQueue.length === 0) return;
-            isSoundPlaying = true;
-            const soundFile = soundQueue.shift();
-            const audio = new Audio(`/sounds/${soundFile}`);
-            audio.play().catch(e => console.error("Error playing sound:", e));
-            audio.onended = () => { isSoundPlaying = false; processSoundQueue(); };
-            audio.onerror = () => { isSoundPlaying = false; processSoundQueue(); };
-        }
         
         function addLogMessage(message, type = 'narrative') {
-            const logContent = document.getElementById('log-content');
+            const logContent = document.getElementById('log-content').querySelector('.log-content') || document.getElementById('log-content');
             const messageElement = document.createElement('div');
             messageElement.className = `log-message log-${type}`;
             messageElement.textContent = message;
             logContent.insertBefore(messageElement, logContent.firstChild);
         }
-
-        function setMuteState(isMuted) {
-            if (localStream) {
-                localStream.getAudioTracks().forEach(track => { track.enabled = !isMuted; });
-            }
-        }
         
         function setupGameBoard(playerNamesArray) {
             const tableArea = document.getElementById('game-table-area');
-            let table = document.getElementById('game-table');
-            if (!table) {
-                tableArea.innerHTML = '<div id="game-table"></div>'; 
-                table = document.getElementById('game-table');
-            }
-            
-            // إزالة المقاعد القديمة
-            document.querySelectorAll('.player-seat').forEach(seat => seat.remove());
+            const table = document.getElementById('game-table');
+            table.innerHTML = '';
 
             playerNamesArray.forEach((playerName, i) => {
                 const angle = (i / playerNamesArray.length) * 2 * Math.PI - (Math.PI / 2);
-                const radius = table.offsetWidth / 2.2; // تقليل النصف قطر قليلا لتجنب الحواف
+                const radius = Math.min(table.offsetWidth, table.offsetHeight) / 2.3;
                 const x = radius * Math.cos(angle);
                 const y = radius * Math.sin(angle);
 
                 const seat = document.createElement('div');
                 seat.className = 'player-seat';
                 seat.dataset.playerName = playerName;
-                // تطبيق الـ transform مباشرة على العنصر
                 seat.style.position = 'absolute';
                 seat.style.top = `calc(50% + ${y}px)`;
                 seat.style.left = `calc(50% + ${x}px)`;
                 seat.style.transform = `translate(-50%, -50%)`;
                 
                 seat.innerHTML = `<span class="player-status">👤</span><span class="player-name">${playerName}</span>`;
-                // إضافة المقعد إلى حاوية الطاولة وليس الطاولة نفسها
-                tableArea.appendChild(seat);
+                table.appendChild(seat);
             });
         }
         
@@ -623,7 +693,65 @@
                 seat.onclick = null;
             });
         }
+        
+        window.addEventListener('resize', () => {
+            const players = Array.from(document.querySelectorAll('.player-seat')).map(seat => seat.dataset.playerName);
+            if (players.length > 0) setupGameBoard(players);
+        });
 
+        // --- 8. SOCKET.IO HANDLERS (ONLINE ONLY) ---
+        socket.on('connect', () => console.log("Connected to server"));
+        socket.on('disconnect', () => console.log("Disconnected from server"));
+
+        socket.on('game-created', (roomId) => {
+            socket.emit('join-room', roomId, playerNameInput.value.trim());
+        });
+
+        socket.on('joined-successfully', (roomId) => {
+            currentRoomId = roomId;
+            navigator.mediaDevices.getUserMedia({ audio: true, video: false })
+                .then(stream => {
+                    localStream = stream;
+                    setupContainer.classList.add('hidden');
+                    gameContainer.classList.add('visible');
+                    roomInfoDisplay.style.display = 'flex';
+                    roomIdText.textContent = roomId;
+                }).catch(err => {
+                    alert("يجب السماح بالوصول إلى الميكروفون للعب عبر الإنترنت.");
+                    window.location.reload();
+                });
+        });
+        
+        socket.on('error-message', (message) => { alert(message); });
+        
+        socket.on('game-over', (message) => {
+            deactivatePlayerButtons();
+            document.getElementById('game-over-message').textContent = message;
+            gameOverModal.classList.add('visible');
+        });
+
+        socket.on('update-room-info', (roomInfo) => {
+            const { players, hostId, gameState, settings } = roomInfo;
+            setTimeout(() => setupGameBoard(players.map(p => p.name)), 100);
+            
+            if (socket.id === hostId && players.length >= (settings ? settings.playerCount : 0) && !gameState) {
+                startGameBtnIngame.style.display = 'block';
+            } else {
+                startGameBtnIngame.style.display = 'none';
+            }
+        });
+
+        let soundQueue = [];
+        let isSoundPlaying = false;
+        function processSoundQueue() {
+            if (isSoundPlaying || soundQueue.length === 0) return;
+            isSoundPlaying = true;
+            const audio = new Audio(`/sounds/${soundQueue.shift()}`);
+            audio.play().catch(e => console.error("Error playing sound:", e));
+            audio.onended = () => { isSoundPlaying = false; processSoundQueue(); };
+            audio.onerror = () => { isSoundPlaying = false; processSoundQueue(); };
+        }
+        
         socket.on('receive-role', (roleInfo) => {
             const roleCardModal = document.getElementById('role-card-modal');
             document.getElementById('role-title').textContent = roleInfo.title;
@@ -648,22 +776,14 @@
             const turnIndicator = document.getElementById('turn-indicator');
             turnIndicator.classList.remove('hidden');
             let timeLeft = parseInt(time);
-            turnIndicator.innerHTML = `
-                <div class="turn-player">دور ${speakerName} للكلام...</div>
-                <div class="turn-timer">${timeLeft}</div>
-                <button id="skip-turn-btn" class="modal-button" style="margin-top:10px;">تخطي الدور</button>
-            `;
-            document.getElementById('skip-turn-btn').onclick = () => {
-                socket.emit('skip-speaker-turn', currentRoomId);
-            };
+            turnIndicator.innerHTML = `<div class="turn-player">دور ${speakerName} للكلام...</div><div class="turn-timer">${timeLeft}</div><button id="skip-turn-btn" class="modal-button" style="margin-top:10px;">تخطي الدور</button>`;
+            document.getElementById('skip-turn-btn').onclick = () => socket.emit('skip-speaker-turn', currentRoomId);
             clearInterval(speakerTimerInterval);
             speakerTimerInterval = setInterval(() => {
                 timeLeft--;
                 const timerEl = turnIndicator.querySelector('.turn-timer');
                 if (timerEl) timerEl.textContent = timeLeft;
-                if (timeLeft <= 0) {
-                    clearInterval(speakerTimerInterval);
-                }
+                if (timeLeft <= 0) clearInterval(speakerTimerInterval);
             }, 1000);
         });
 
@@ -694,6 +814,9 @@
             }
         });
 
+        function setMuteState(isMuted) {
+            if (localStream) localStream.getAudioTracks().forEach(track => track.enabled = !isMuted);
+        }
         socket.on('mute-all', () => setMuteState(true));
         socket.on('unmute-all', () => setMuteState(false));
         socket.on('enter-mafia-channel', (mafiaSocketIds) => {
@@ -747,19 +870,8 @@
             }
         }
         
-        // إعادة رسم الطاولة عند تغيير حجم الشاشة
-        window.addEventListener('resize', () => {
-            if (currentRoomId) {
-                // قد تحتاج إلى الحصول على قائمة اللاعبين الحالية مرة أخرى
-                // لكن كحل بسيط، يمكننا إعادة رسمها إذا كانت العناصر موجودة
-                const players = Array.from(document.querySelectorAll('.player-seat')).map(seat => seat.dataset.playerName);
-                if (players.length > 0) {
-                    setupGameBoard(players);
-                }
-            }
-        });
-
-        initializeSetup();
+        // --- INITIALIZATION ---
+        initializeOnlineSetup();
     });
     </script>
 </body>

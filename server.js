@@ -19,13 +19,59 @@ let nightActionResolvers = {};
 // --- UTILITY FUNCTIONS ---
 function playSoundToRoom(roomId, soundFile) { io.to(roomId).emit('game-update', { event: 'play-sound', file: soundFile }); }
 function logToRoom(roomId, message, type = 'narrative') { io.to(roomId).emit('game-update', { event: 'log', message, type }); }
+function delay(ms) { return new Promise(resolve => setTimeout(resolve, ms)); }
+
+function generateDailyHint(room) {
+    const { players, roles, previousVotes, eliminatedYesterday, nightActions } = room.gameState;
+    const alivePlayers = players.filter(p => p.isAlive);
+
+    if (alivePlayers.length < 4) return null;
+
+    const hintPool = [];
+
+    if (alivePlayers.length >= 2) {
+        hintPool.push(() => {
+            let player1 = alivePlayers[Math.floor(Math.random() * alivePlayers.length)];
+            let potentialPlayer2 = alivePlayers.filter(p => p.name !== player1.name);
+            let player2 = potentialPlayer2[Math.floor(Math.random() * potentialPlayer2.length)];
+            return `تقرير الشرطة: شوهد ${player1.name} و ${player2.name} بالقرب من مسرح الجريمة الليلة الماضية.`;
+        });
+    }
+    
+    hintPool.push(() => `تقرير الشرطة: يسود الهدوء المريب أحيانًا. بعض الناس يفضلون الاختباء في الظل.`);
+
+    if (nightActions && nightActions.mafiaTarget && nightActions.mafiaTarget === nightActions.doctorSave) {
+        hintPool.push(() => `همسة مجهولة: الطبيب نجح في إنقاذ روح بريئة هذه الليلة.`);
+    }
+
+    if (previousVotes && eliminatedYesterday && roles[eliminatedYesterday] && roles[eliminatedYesterday].title !== 'المافيا') {
+        const aliveMafia = alivePlayers.filter(p => roles[p.name].title === 'المافيا');
+        const suspiciousMafia = aliveMafia.find(mafia => previousVotes[mafia.name] === eliminatedYesterday);
+        if (suspiciousMafia) {
+            hintPool.push(() => `همسة مجهولة: أحد الذين صوتوا ضد ${eliminatedYesterday} بالأمس يخفي سرًا مظلمًا.`);
+        }
+    }
+
+    if (hintPool.length === 0) return null;
+    
+    if (Math.random() < 0.25) return null;
+
+    const chosenHintGenerator = hintPool[Math.floor(Math.random() * hintPool.length)];
+    return chosenHintGenerator();
+}
+
 
 // --- GAME STATE & LOGIC ---
 function createGameState(players, settings) {
     const playerNames = players.map(p => p.name);
     const gameState = {
         players: playerNames.map(name => ({ name, isAlive: true })),
-        roles: {}, phase: 'SETUP', dayCount: 1, settings
+        roles: {}, 
+        phase: 'SETUP', 
+        dayCount: 0,
+        settings,
+        previousVotes: null,
+        eliminatedYesterday: null
     };
     let rolesToAssign = [];
     if (settings && settings.roles) {
@@ -59,13 +105,11 @@ function checkWinCondition(roomId) {
 
     if (aliveMafia.length === 0) {
         logToRoom(roomId, "لقد تم القضاء على كل المافيا! المواطنون ينتصرون!", 'narrative');
-        playSoundToRoom(roomId, 'citizens-win.mp3');
         io.to(roomId).emit('game-over', 'المواطنون فازوا!');
         return true;
     }
     if (aliveMafia.length >= aliveCitizens) {
         logToRoom(roomId, "المافيا تسيطر على المدينة! لقد انتصروا!", 'narrative');
-        playSoundToRoom(roomId, 'mafia-wins.mp3');
         io.to(roomId).emit('game-over', 'المافيا فازت!');
         return true;
     }
@@ -77,58 +121,72 @@ async function startNightPhase(roomId) {
     if (!room || !room.gameState) return;
     room.gameState.phase = 'NIGHT';
     room.gameState.nightActions = {};
+    room.gameState.nightActionsSubmitted = {}; 
     nightActionResolvers[roomId] = {};
+    
+    logToRoom(roomId, `الليلة ${room.gameState.dayCount + 1}... تغلق المدينة أبوابها.`, 'narrative');
     playSoundToRoom(roomId, 'night-begins.mp3');
     io.to(roomId).emit('game-update', { event: 'set-theme', theme: 'night' });
     io.to(roomId).emit('mute-all');
-    await new Promise(r => setTimeout(r, 4000));
+    await delay(4000);
+
     playSoundToRoom(roomId, 'mafia-awakes.mp3');
     const mafiaChoice = await getNightAction(roomId, 'المافيا', 'أيها المافيا، اختر ضحيتك.', true);
     room.gameState.nightActions.mafiaTarget = mafiaChoice;
-    await new Promise(r => setTimeout(r, 1000));
+    await delay(1000);
+
     playSoundToRoom(roomId, 'detective-awakes.mp3');
     const detectiveChoice = await getNightAction(roomId, 'المحقق', 'أيها المحقق، اختر من تريد التحقيق فيه.', false);
-    if(detectiveChoice) {
+    if (detectiveChoice) {
         const targetRole = room.gameState.roles[detectiveChoice].title;
         const detective = room.players.find(p => room.gameState.roles[p.name].title === 'المحقق' && room.gameState.players.find(gp => gp.name === p.name && gp.isAlive));
         if (detective) {
             io.to(detective.id).emit('game-update', { event: 'log', message: `نتيجة التحقيق: ${detectiveChoice} هو ${targetRole === 'المافيا' ? 'مافيا!' : 'بريء.'}`, type: 'system' });
         }
     }
-    await new Promise(r => setTimeout(r, 1000));
+    await delay(1000);
+
     playSoundToRoom(roomId, 'doctor-awakes.mp3');
     const doctorChoice = await getNightAction(roomId, 'الطبيب', 'أيها الطبيب، اختر من تريد إنقاذه.', true);
     room.gameState.nightActions.doctorSave = doctorChoice;
-    await new Promise(r => setTimeout(r, 1000));
+    await delay(1000);
+    
     startDayPhase(roomId);
 }
 
 function getNightAction(roomId, role, prompt, canChooseSelf) {
     return new Promise(resolve => {
         const room = rooms[roomId];
-        const actionPlayer = room.players.find(p => room.gameState.roles[p.name].title === role && room.gameState.players.find(gp => gp.name === p.name && gp.isAlive));
-        if (actionPlayer) {
+        const actionTakers = room.players.filter(p => room.gameState.roles[p.name]?.title === role && room.gameState.players.find(gp => gp.name === p.name && gp.isAlive));
+        
+        if (actionTakers.length > 0) {
             nightActionResolvers[roomId][role] = resolve;
-            io.to(actionPlayer.id).emit('perform-night-action', { prompt, canChooseSelf });
-        } else { resolve(null); }
+            actionTakers.forEach(player => {
+                io.to(player.id).emit('perform-night-action', { prompt, canChooseSelf });
+            });
+        } else {
+            resolve(null);
+        }
     });
 }
 
-function startDayPhase(roomId) {
+async function startDayPhase(roomId) {
     const room = rooms[roomId];
     if (!room || !room.gameState) return;
+
     room.gameState.phase = 'DAY';
-    room.gameState.dayCount++;
+    room.gameState.dayCount++; 
+    logToRoom(roomId, `النهار ${room.gameState.dayCount}. تشرق الشمس على المدينة...`, 'narrative');
     playSoundToRoom(roomId, 'day-begins.mp3');
     io.to(roomId).emit('game-update', { event: 'set-theme', theme: 'day' });
+
     const { mafiaTarget, doctorSave } = room.gameState.nightActions;
-    const victimName = (mafiaTarget !== doctorSave) ? mafiaTarget : null;
+    const victimName = (mafiaTarget && mafiaTarget !== doctorSave) ? mafiaTarget : null;
+
     if (victimName) {
         const victim = room.gameState.players.find(p => p.name === victimName);
-        if (victim) {
+        if (victim && victim.isAlive) {
             victim.isAlive = false;
-            const victimSocket = room.players.find(p => p.name === victimName);
-            if(victimSocket) io.to(roomId).emit('user-left', victimSocket.id);
             io.to(roomId).emit('player-eliminated', victimName);
             playSoundToRoom(roomId, 'player-eliminated-night.mp3');
             logToRoom(roomId, `بعد ليلة مرعبة، تم العثور على ${victimName} مقتولاً!`, 'alert');
@@ -137,19 +195,27 @@ function startDayPhase(roomId) {
         playSoundToRoom(roomId, 'no-one-died.mp3');
         logToRoom(roomId, 'بفضل تدخل ما، مرت الليلة بسلام!', 'narrative');
     }
+
+    await delay(2000);
+
     if (checkWinCondition(roomId)) return;
-    setTimeout(() => {
-        io.to(roomId).emit('unmute-all');
-        playSoundToRoom(roomId, 'discussion-begins.mp3');
-        startSpeakingPhase(roomId);
-    }, 4000);
+
+    const report = generateDailyHint(room);
+    if (report) {
+        logToRoom(roomId, report, 'system');
+        await delay(4000);
+    }
+
+    io.to(roomId).emit('unmute-all');
+    playSoundToRoom(roomId, 'discussion-begins.mp3');
+    startSpeakingPhase(roomId);
 }
 
 function startSpeakingPhase(roomId) {
     const room = rooms[roomId];
     if (!room || !room.gameState) return;
     room.gameState.phase = 'SPEAKING';
-    room.gameState.speakingOrder = room.gameState.players.filter(p => p.isAlive).map(p => p.name).reverse();
+    room.gameState.speakingOrder = room.gameState.players.filter(p => p.isAlive).map(p => p.name).sort(() => Math.random() - 0.5);
     room.gameState.currentSpeakerIndex = 0;
     giveTurnToNextSpeaker(roomId);
 }
@@ -163,13 +229,11 @@ function giveTurnToNextSpeaker(roomId) {
         return;
     }
     const speakerName = room.gameState.speakingOrder[room.gameState.currentSpeakerIndex];
-    io.to(roomId).emit('start-speaker-turn', {
-        speakerName,
-        time: room.settings.speakingTime
-    });
+    const speakingTime = (room.settings && room.settings.speakingTime) || 60;
+    io.to(roomId).emit('start-speaker-turn', { speakerName, time: speakingTime });
     room.gameState.speakerTimer = setTimeout(() => {
         giveTurnToNextSpeaker(roomId);
-    }, (parseInt(room.settings.speakingTime) + 1) * 1000);
+    }, (speakingTime + 1) * 1000);
     room.gameState.currentSpeakerIndex++;
 }
 
@@ -179,18 +243,14 @@ function startVotingPhase(roomId) {
     room.gameState.phase = 'VOTING';
     room.gameState.votes = {};
     playSoundToRoom(roomId, 'voting-begins.mp3');
+    logToRoom(roomId, "حان وقت التصويت!", 'alert');
     io.to(roomId).emit('perform-vote');
 }
 
 io.on('connection', (socket) => {
     socket.on('create-game', (playerName, settings) => {
         const roomId = crypto.randomBytes(3).toString('hex').toUpperCase();
-        rooms[roomId] = {
-            players: [],
-            hostId: socket.id,
-            gameState: null,
-            settings: settings
-        };
+        rooms[roomId] = { players: [], hostId: socket.id, gameState: null, settings: settings };
         socket.emit('game-created', roomId);
     });
 
@@ -204,21 +264,19 @@ io.on('connection', (socket) => {
         room.players.push({ id: socket.id, name: playerName });
         socket.emit('joined-successfully', roomId);
         io.to(roomId).emit('update-room-info', room);
-        socket.to(roomId).emit('user-joined', socket.id, playerName);
+        socket.to(roomId).emit('user-joined', socket.id);
     });
     
-    socket.on('start-game', (roomId, settings) => {
+    socket.on('start-game', (roomId) => {
         const room = rooms[roomId];
-        // THE CRITICAL FIX IS HERE: Use the settings stored in the room, not potentially empty ones from the client
         if (room && room.hostId === socket.id && !room.gameState) {
-            room.gameState = createGameState(room.players, room.settings); // <-- USE room.settings
+            room.gameState = createGameState(room.players, room.settings);
             
             room.players.forEach(player => {
                 const roleInfo = room.gameState.roles[player.name];
                 io.to(player.id).emit('receive-role', roleInfo);
             });
             setTimeout(() => {
-                io.to(roomId).emit('game-started');
                 startNightPhase(roomId);
             }, 5000);
         }
@@ -232,15 +290,30 @@ io.on('connection', (socket) => {
         }
     });
 
+    // --- المعالج المُصلَح بالكامل ---
     socket.on('submit-night-action', (roomId, choice) => {
         const room = rooms[roomId];
         if (!room || !room.gameState) return;
+
         const player = room.players.find(p => p.id === socket.id);
         if (!player) return;
+
         const role = room.gameState.roles[player.name].title;
-        if(nightActionResolvers[roomId] && nightActionResolvers[roomId][role]) {
+
+        // التحقق من القفل بعد تحديد الدور
+        if (room.gameState.nightActionsSubmitted[role]) {
+            // تجاهل الإجراء إذا تم إرساله بالفعل من قبل عضو آخر في الفريق
+            return;
+        }
+
+        if (nightActionResolvers[roomId] && nightActionResolvers[roomId][role]) {
+            // قم بقفل الإجراء لهذا الفريق
+            room.gameState.nightActionsSubmitted[role] = true;
+            
+            // قم بحل الـ Promise للمتابعة في دورة اللعبة
             nightActionResolvers[roomId][role](choice);
-            delete nightActionResolvers[roomId][role];
+            
+            // لا تقم بحذف الـ resolver، فقد تحتاجه الدورة لحالات أخرى
         }
     });
 
@@ -250,7 +323,7 @@ io.on('connection', (socket) => {
         const player = room.players.find(p => p.id === socket.id);
         if(!player || !room.gameState.players.find(p => p.name === player.name && p.isAlive)) return;
         room.gameState.votes[player.name] = choice;
-        logToRoom(roomId, `${player.name} صوت ضد ${choice}`, 'system');
+        
         const alivePlayers = room.gameState.players.filter(p => p.isAlive);
         if (Object.keys(room.gameState.votes).length === alivePlayers.length) {
             const voteCounts = {};
@@ -263,7 +336,7 @@ io.on('connection', (socket) => {
                     maxVotes = voteCounts[playerName];
                     playerToEliminate = playerName;
                     tie = false;
-                } else if (voteCounts[playerName] === maxVotes) {
+                } else if (voteCounts[playerName] === maxVotes && maxVotes > 0) {
                     tie = true;
                 }
             }
@@ -271,15 +344,20 @@ io.on('connection', (socket) => {
                 const eliminated = room.gameState.players.find(p => p.name === playerToEliminate);
                 if(eliminated) {
                     eliminated.isAlive = false;
-                    const eliminatedSocket = room.players.find(p => p.name === eliminated.name);
-                    if(eliminatedSocket) io.to(roomId).emit('user-left', eliminatedSocket.id);
                     const eliminatedRole = room.gameState.roles[playerToEliminate].title;
                     io.to(roomId).emit('player-eliminated', playerToEliminate);
                     playSoundToRoom(roomId, 'player-eliminated-day.mp3');
                     logToRoom(roomId, `قررت المدينة طرد ${playerToEliminate}. لقد كان... ${eliminatedRole}!`, 'alert');
                 }
-            } else { logToRoom(roomId, 'لم يتمكن أهل المدينة من الاتفاق على قرار بسبب تعادل الأصوات.', 'narrative'); }
+            } else { 
+                logToRoom(roomId, 'لم يتمكن أهل المدينة من الاتفاق على قرار بسبب تعادل الأصوات.', 'narrative'); 
+            }
+            
+            room.gameState.previousVotes = { ...room.gameState.votes };
+            room.gameState.eliminatedYesterday = (playerToEliminate && !tie) ? playerToEliminate : null;
+
             if (checkWinCondition(roomId)) return;
+
             setTimeout(() => startNightPhase(roomId), 5000);
         }
     });
@@ -293,10 +371,21 @@ io.on('connection', (socket) => {
             const room = rooms[roomId];
             const playerIndex = room.players.findIndex(p => p.id === socket.id);
             if (playerIndex !== -1) {
+                const disconnectedPlayerName = room.players[playerIndex].name;
                 room.players.splice(playerIndex, 1);
+                
+                if (room.gameState && room.gameState.players) {
+                    const gamePlayer = room.gameState.players.find(p => p.name === disconnectedPlayerName);
+                    if (gamePlayer) gamePlayer.isAlive = false;
+                    logToRoom(roomId, `${disconnectedPlayerName} قد غادر اللعبة.`, 'system');
+                    checkWinCondition(roomId);
+                }
+
                 if (room.hostId === socket.id && room.players.length > 0) { room.hostId = room.players[0].id; }
+                
                 io.to(roomId).emit('update-room-info', room);
                 io.to(roomId).emit('user-left', socket.id);
+
                 if (room.players.length === 0) { delete rooms[roomId]; }
                 break;
             }
