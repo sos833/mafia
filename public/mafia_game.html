@@ -215,10 +215,61 @@
             #game-table { width: 90vw; height: 90vw; }
         }
         .log-message.log-system {
-    background-color: rgba(100, 100, 150, 0.15); /* لون أزرق خفيف */
-    border-left: 3px solid #87CEEB; /* خط أزرق على اليسار */
-    font-style: italic; /* اجعل الخط مائلاً */
-}
+            background-color: rgba(100, 100, 150, 0.15);
+            border-left: 3px solid #87CEEB;
+            font-style: italic;
+        }
+        
+        /* --- تعديل: إضافة تنسيقات المقبرة --- */
+        #graveyard-area {
+            position: absolute;
+            bottom: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 80%;
+            max-width: 600px;
+            background: rgba(10, 0, 0, 0.6);
+            border-top: 2px solid var(--primary-red);
+            border-radius: 20px 20px 0 0;
+            padding: 5px 15px;
+            text-align: center;
+            backdrop-filter: blur(4px);
+            z-index: 5;
+            transition: all 0.5s;
+        }
+        #graveyard-area h2 {
+            font-family: 'Cinzel Decorative', cursive;
+            color: var(--primary-text);
+            font-size: 22px;
+            margin: 0;
+            padding: 5px;
+            opacity: 0.6;
+        }
+        #graveyard-players {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 10px;
+            min-height: 85px; /* لضمان وجود مساحة حتى لو كانت فارغة */
+        }
+        /* عندما يكون المقعد في المقبرة، يتغير تنسيقه */
+        #graveyard-players .player-seat {
+            position: relative !important; /* تجاهل التموضع المطلق */
+            top: auto !important;
+            left: auto !important;
+            transform: none !important;
+            width: 70px; /* حجم أصغر للمقبرة */
+            height: 70px;
+            margin: 5px;
+        }
+        #graveyard-players .player-name {
+            font-size: 14px;
+        }
+        #graveyard-players .player-seat--eliminated {
+            opacity: 0.8; /* أكثر وضوحًا في المقبرة */
+        }
+
     </style>
 </head>
 <body>
@@ -267,6 +318,11 @@
     <div class="game-container" id="game-container">
         <div class="game-table-area" id="game-table-area">
             <div id="game-table"></div>
+            <!-- تعديل: إضافة حاوية المقبرة هنا -->
+            <div id="graveyard-area">
+                <h2>المقبرة</h2>
+                <div id="graveyard-players"></div>
+            </div>
         </div>
         <div class="log-panel" id="log-panel">
             <div id="game-controls">
@@ -346,6 +402,10 @@
         let localStream;
         let peerConnections = {};
         let currentRoomId = null;
+        
+        // تعديل: إضافة متغيرات لتتبع حالة اللاعبين والواجهة
+        let allPlayersInRoom = [];
+        let eliminatedPlayerNames = [];
 
         // --- 2. UTILITY FUNCTIONS ---
         function delay(ms) { return new Promise(resolve => setTimeout(resolve, ms)); }
@@ -503,6 +563,8 @@
             const playerCount = 7;
             const allPlayerNames = [humanPlayerName, ...botNames.slice(0, playerCount - 1)];
             
+            allPlayersInRoom = allPlayerNames; // تعديل: تحديث قائمة اللاعبين للوضع الفردي
+
             const gameSettings = { roles: { 'المافيا': 2, 'المحقق': 1, 'الطبيب': 1, 'مواطن': 3 } };
 
             const game = new OfflineGameManager(allPlayerNames, humanPlayerName, gameSettings);
@@ -512,7 +574,8 @@
                 .filter(name => name !== humanPlayerName)
                 .map(name => new AIBot(name, game.gameState.roles[name]));
 
-            setupGameBoard(allPlayerNames);
+            redrawGameBoardUI(); // تعديل: استخدام الدالة الجديدة للرسم
+            
             const humanRole = game.gameState.roles[humanPlayerName];
             document.getElementById('role-title').textContent = humanRole.title;
             document.getElementById('role-icon').textContent = humanRole.icon;
@@ -564,8 +627,11 @@
 
                 if (nightResults.victimName) {
                     addLogMessage(`بعد ليلة مرعبة، تم العثور على ${nightResults.victimName} مقتولاً!`, 'alert');
-                    document.querySelector(`[data-player-name="${nightResults.victimName}"] .player-status`).textContent = '💀';
-                    document.querySelector(`[data-player-name="${nightResults.victimName}"]`).classList.add('player-seat--eliminated');
+                    
+                    // تعديل: استخدام الدالة الجديدة لإعادة رسم الواجهة
+                    eliminatedPlayerNames.push(nightResults.victimName);
+                    redrawGameBoardUI();
+
                 } else {
                     addLogMessage('مرت الليلة بسلام، ولم يمت أحد.', 'narrative');
                 }
@@ -591,8 +657,11 @@
                 if (votingResults.eliminatedPlayer) {
                     const role = game.gameState.roles[votingResults.eliminatedPlayer].title;
                     addLogMessage(`قررت المدينة طرد ${votingResults.eliminatedPlayer}. لقد كان... ${role}!`, 'alert');
-                    document.querySelector(`[data-player-name="${votingResults.eliminatedPlayer}"] .player-status`).textContent = '💀';
-                    document.querySelector(`[data-player-name="${votingResults.eliminatedPlayer}"]`).classList.add('player-seat--eliminated');
+                    
+                    // تعديل: استخدام الدالة الجديدة لإعادة رسم الواجهة
+                    eliminatedPlayerNames.push(votingResults.eliminatedPlayer);
+                    redrawGameBoardUI();
+
                 } else {
                     addLogMessage('لم يتمكن أهل المدينة من الاتفاق على قرار بسبب تعادل الأصوات.', 'narrative');
                 }
@@ -654,32 +723,68 @@
             logContent.insertBefore(messageElement, logContent.firstChild);
         }
         
-        function setupGameBoard(playerNamesArray) {
-            const tableArea = document.getElementById('game-table-area');
+        // تعديل: دالة لإنشاء مقعد لاعب لتجنب التكرار
+        function createPlayerSeat(playerName, isEliminated = false) {
+            const seat = document.createElement('div');
+            seat.className = 'player-seat';
+            seat.dataset.playerName = playerName;
+            
+            const statusIcon = isEliminated ? '💀' : '👤';
+            seat.innerHTML = `<span class="player-status">${statusIcon}</span><span class="player-name">${playerName}</span>`;
+            
+            if (isEliminated) {
+                seat.classList.add('player-seat--eliminated');
+            }
+            return seat;
+        }
+
+        // تعديل: استبدال الدالة القديمة بدالة جديدة تعيد رسم كل شيء
+        function setupGameBoard(playerNamesArray, targetElementId = 'game-table') {
+            const container = document.getElementById(targetElementId);
+            const isTable = (targetElementId === 'game-table');
+            
+            if (isTable) {
+                const table = container;
+                playerNamesArray.forEach((playerName, i) => {
+                    if (playerNamesArray.length === 0) return;
+                    const angle = (i / playerNamesArray.length) * 2 * Math.PI - (Math.PI / 2);
+                    const radius = Math.min(table.offsetWidth, table.offsetHeight) / 2.3;
+                    const x = radius * Math.cos(angle);
+                    const y = radius * Math.sin(angle);
+
+                    const seat = createPlayerSeat(playerName);
+                    seat.style.position = 'absolute';
+                    seat.style.top = `calc(50% + ${y}px)`;
+                    seat.style.left = `calc(50% + ${x}px)`;
+                    seat.style.transform = `translate(-50%, -50%)`;
+                    table.appendChild(seat);
+                });
+            } else { // This is for the graveyard
+                playerNamesArray.forEach(playerName => {
+                    const seat = createPlayerSeat(playerName, true); // true = isEliminated
+                    container.appendChild(seat);
+                });
+            }
+        }
+
+        // تعديل: دالة مركزية لإعادة رسم واجهة اللعبة بالكامل
+        function redrawGameBoardUI() {
             const table = document.getElementById('game-table');
+            const graveyard = document.getElementById('graveyard-players');
             table.innerHTML = '';
+            graveyard.innerHTML = '';
 
-            playerNamesArray.forEach((playerName, i) => {
-                const angle = (i / playerNamesArray.length) * 2 * Math.PI - (Math.PI / 2);
-                const radius = Math.min(table.offsetWidth, table.offsetHeight) / 2.3;
-                const x = radius * Math.cos(angle);
-                const y = radius * Math.sin(angle);
-
-                const seat = document.createElement('div');
-                seat.className = 'player-seat';
-                seat.dataset.playerName = playerName;
-                seat.style.position = 'absolute';
-                seat.style.top = `calc(50% + ${y}px)`;
-                seat.style.left = `calc(50% + ${x}px)`;
-                seat.style.transform = `translate(-50%, -50%)`;
-                
-                seat.innerHTML = `<span class="player-status">👤</span><span class="player-name">${playerName}</span>`;
-                table.appendChild(seat);
-            });
+            const alivePlayers = allPlayersInRoom.filter(p => !eliminatedPlayerNames.includes(p));
+            
+            // رسم اللاعبين الأحياء على الطاولة
+            setupGameBoard(alivePlayers, 'game-table');
+            
+            // رسم اللاعبين المقُصيين في المقبرة
+            setupGameBoard(eliminatedPlayerNames, 'graveyard-players');
         }
         
         function activatePlayerButtons(callback) {
-            document.querySelectorAll('.player-seat').forEach(seat => {
+            document.querySelectorAll('#game-table .player-seat').forEach(seat => {
                 if (!seat.classList.contains('player-seat--eliminated')) {
                     seat.classList.add('clickable');
                     seat.onclick = () => callback(seat.dataset.playerName);
@@ -695,8 +800,8 @@
         }
         
         window.addEventListener('resize', () => {
-            const players = Array.from(document.querySelectorAll('.player-seat')).map(seat => seat.dataset.playerName);
-            if (players.length > 0) setupGameBoard(players);
+             // تعديل: استخدام الدالة الجديدة عند تغيير الحجم
+             if (allPlayersInRoom.length > 0) redrawGameBoardUI();
         });
 
         // --- 8. SOCKET.IO HANDLERS (ONLINE ONLY) ---
@@ -730,9 +835,14 @@
             gameOverModal.classList.add('visible');
         });
 
-        socket.on('update-room-info', (roomInfo) => {
-            const { players, hostId, gameState, settings } = roomInfo;
-            setTimeout(() => setupGameBoard(players.map(p => p.name)), 100);
+        socket.on('update-room-info', (data) => {
+            const { players, hostId, gameState, settings } = data.room;
+            
+            // تعديل: تحديث قائمة اللاعبين وإعادة رسم الواجهة
+            allPlayersInRoom = players.map(p => p.name);
+            eliminatedPlayerNames = gameState ? gameState.eliminatedPlayers.map(p => p.name) : [];
+            
+            setTimeout(redrawGameBoardUI, 100);
             
             if (socket.id === hostId && players.length >= (settings ? settings.playerCount : 0) && !gameState) {
                 startGameBtnIngame.style.display = 'block';
@@ -771,13 +881,15 @@
         let speakerTimerInterval;
         socket.on('start-speaker-turn', ({ speakerName, time }) => {
             document.querySelectorAll('.player-seat--speaking').forEach(el => el.classList.remove('player-seat--speaking'));
-            const speakerSeat = document.querySelector(`[data-player-name="${speakerName}"]`);
+            const speakerSeat = document.querySelector(`#game-table [data-player-name="${speakerName}"]`);
             if (speakerSeat) speakerSeat.classList.add('player-seat--speaking');
             const turnIndicator = document.getElementById('turn-indicator');
             turnIndicator.classList.remove('hidden');
             let timeLeft = parseInt(time);
             turnIndicator.innerHTML = `<div class="turn-player">دور ${speakerName} للكلام...</div><div class="turn-timer">${timeLeft}</div><button id="skip-turn-btn" class="modal-button" style="margin-top:10px;">تخطي الدور</button>`;
-            document.getElementById('skip-turn-btn').onclick = () => socket.emit('skip-speaker-turn', currentRoomId);
+            if(document.getElementById('skip-turn-btn')) {
+              document.getElementById('skip-turn-btn').onclick = () => socket.emit('skip-speaker-turn', currentRoomId);
+            }
             clearInterval(speakerTimerInterval);
             speakerTimerInterval = setInterval(() => {
                 timeLeft--;
@@ -800,18 +912,21 @@
 
         socket.on('perform-vote', () => {
             document.getElementById('turn-indicator').classList.add('hidden');
+            clearInterval(speakerTimerInterval);
+            document.querySelectorAll('.player-seat--speaking').forEach(el => el.classList.remove('player-seat--speaking'));
+            addLogMessage("حان وقت التصويت! اختر من تريد طرده.", "alert");
             activatePlayerButtons((chosenPlayer) => {
                 deactivatePlayerButtons();
                 socket.emit('submit-vote', currentRoomId, chosenPlayer);
             });
         });
         
-        socket.on('player-eliminated', (playerName) => {
-            const seat = document.querySelector(`[data-player-name="${playerName}"]`);
-            if (seat) {
-                seat.classList.add('player-seat--eliminated');
-                seat.querySelector('.player-status').textContent = '💀';
+        socket.on('player-eliminated', ({ playerName, role }) => {
+            // تعديل: تحديث قائمة المقُصيين وإعادة رسم الواجهة
+            if (!eliminatedPlayerNames.includes(playerName)) {
+                eliminatedPlayerNames.push(playerName);
             }
+            redrawGameBoardUI();
         });
 
         function setMuteState(isMuted) {

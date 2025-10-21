@@ -71,7 +71,8 @@ function createGameState(players, settings) {
         dayCount: 0,
         settings,
         previousVotes: null,
-        eliminatedYesterday: null
+        eliminatedYesterday: null,
+        eliminatedPlayers: []
     };
     let rolesToAssign = [];
     if (settings && settings.roles) {
@@ -187,7 +188,9 @@ async function startDayPhase(roomId) {
         const victim = room.gameState.players.find(p => p.name === victimName);
         if (victim && victim.isAlive) {
             victim.isAlive = false;
-            io.to(roomId).emit('player-eliminated', victimName);
+            const victimRole = room.gameState.roles[victimName].title;
+            room.gameState.eliminatedPlayers.push({ name: victimName, role: victimRole });
+            io.to(roomId).emit('player-eliminated', { playerName: victimName, role: victimRole });
             playSoundToRoom(roomId, 'player-eliminated-night.mp3');
             logToRoom(roomId, `بعد ليلة مرعبة، تم العثور على ${victimName} مقتولاً!`, 'alert');
         }
@@ -263,7 +266,7 @@ io.on('connection', (socket) => {
         socket.join(roomId);
         room.players.push({ id: socket.id, name: playerName });
         socket.emit('joined-successfully', roomId);
-        io.to(roomId).emit('update-room-info', room);
+        io.to(roomId).emit('update-room-info', { room: rooms[roomId] });
         socket.to(roomId).emit('user-joined', socket.id);
     });
     
@@ -290,7 +293,6 @@ io.on('connection', (socket) => {
         }
     });
 
-    // --- المعالج المُصلَح بالكامل ---
     socket.on('submit-night-action', (roomId, choice) => {
         const room = rooms[roomId];
         if (!room || !room.gameState) return;
@@ -300,20 +302,13 @@ io.on('connection', (socket) => {
 
         const role = room.gameState.roles[player.name].title;
 
-        // التحقق من القفل بعد تحديد الدور
         if (room.gameState.nightActionsSubmitted[role]) {
-            // تجاهل الإجراء إذا تم إرساله بالفعل من قبل عضو آخر في الفريق
             return;
         }
 
         if (nightActionResolvers[roomId] && nightActionResolvers[roomId][role]) {
-            // قم بقفل الإجراء لهذا الفريق
             room.gameState.nightActionsSubmitted[role] = true;
-            
-            // قم بحل الـ Promise للمتابعة في دورة اللعبة
             nightActionResolvers[roomId][role](choice);
-            
-            // لا تقم بحذف الـ resolver، فقد تحتاجه الدورة لحالات أخرى
         }
     });
 
@@ -345,7 +340,8 @@ io.on('connection', (socket) => {
                 if(eliminated) {
                     eliminated.isAlive = false;
                     const eliminatedRole = room.gameState.roles[playerToEliminate].title;
-                    io.to(roomId).emit('player-eliminated', playerToEliminate);
+                    room.gameState.eliminatedPlayers.push({ name: playerToEliminate, role: eliminatedRole });
+                    io.to(roomId).emit('player-eliminated', { playerName: playerToEliminate, role: eliminatedRole });
                     playSoundToRoom(roomId, 'player-eliminated-day.mp3');
                     logToRoom(roomId, `قررت المدينة طرد ${playerToEliminate}. لقد كان... ${eliminatedRole}!`, 'alert');
                 }
@@ -376,14 +372,19 @@ io.on('connection', (socket) => {
                 
                 if (room.gameState && room.gameState.players) {
                     const gamePlayer = room.gameState.players.find(p => p.name === disconnectedPlayerName);
-                    if (gamePlayer) gamePlayer.isAlive = false;
-                    logToRoom(roomId, `${disconnectedPlayerName} قد غادر اللعبة.`, 'system');
-                    checkWinCondition(roomId);
+                    if (gamePlayer) {
+                        gamePlayer.isAlive = false;
+                        const disconnectedRole = room.gameState.roles[disconnectedPlayerName].title;
+                        room.gameState.eliminatedPlayers.push({ name: disconnectedPlayerName, role: disconnectedRole });
+                        io.to(roomId).emit('player-eliminated', { playerName: disconnectedPlayerName, role: disconnectedRole });
+                        logToRoom(roomId, `${disconnectedPlayerName} قد غادر اللعبة.`, 'system');
+                        checkWinCondition(roomId);
+                    }
                 }
 
                 if (room.hostId === socket.id && room.players.length > 0) { room.hostId = room.players[0].id; }
                 
-                io.to(roomId).emit('update-room-info', room);
+                io.to(roomId).emit('update-room-info', { room: rooms[roomId] });
                 io.to(roomId).emit('user-left', socket.id);
 
                 if (room.players.length === 0) { delete rooms[roomId]; }
