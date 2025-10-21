@@ -219,7 +219,27 @@
             border-left: 3px solid #87CEEB;
             font-style: italic;
         }
-        
+        @keyframes pulsating-glow {
+            0% {
+                box-shadow: 0 0 10px #f0e68c, 0 0 20px #daa520;
+                transform: scale(1.1) !important;
+            }
+            50% {
+                box-shadow: 0 0 25px #f0e68c, 0 0 40px #daa520;
+                transform: scale(1.15) !important;
+            }
+            100% {
+                box-shadow: 0 0 10px #f0e68c, 0 0 20px #daa520;
+                transform: scale(1.1) !important;
+            }
+        }
+
+        .player-seat--speaking {
+            border-color: #ffd700; /* لون ذهبي للإطار */
+            border-width: 4px;     /* جعل الإطار أكثر سماكة */
+            animation: pulsating-glow 1.8s infinite ease-in-out;
+            transform: scale(1.1) !important; 
+        }
         /* --- تعديل: إضافة تنسيقات المقبرة --- */
         #graveyard-area {
             position: absolute;
