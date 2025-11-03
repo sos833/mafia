@@ -3,17 +3,21 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- ** شفرة AdSense الأساسية ** -->
     <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7964534620265688"
      crossorigin="anonymous"></script>
+     
     <title>لعبة المافيا - الطاولة المستديرة</title>
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
+    <!-- ** Favicon (السكين) ** -->
     <link rel="icon" 
     href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🔪</text></svg>">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@700&family=Lateef&display=swap" rel="stylesheet">
     <script src="/socket.io/socket.io.js"></script>
     <style>
+        /* [التنسيقات لم تتغير هنا] */
         :root {
             --primary-red: #8B0000;
             --primary-text: #f0e6d2;
@@ -337,12 +341,46 @@
                 </div>
             </div>
 
-            <!-- ****** مساحة إعلانية اختيارية في القائمة الرئيسية ****** -->
+            <!-- تعليمات اللعب والتاريخ (لزيادة المحتوى القيم) -->
+            <div style="margin-top: 30px; border-top: 1px solid rgba(255, 255, 255, 0.1);">
+                <h3 style="margin-top: 20px; font-family: 'Cinzel Decorative', cursive; color: var(--primary-text); font-size: 26px;">
+                    شرح وقواعد لعبة المافيا
+                </h3>
+                
+                <div id="game-guide" style="font-size: 18px; line-height: 1.7; padding: 10px; background: rgba(0,0,0,0.4); border-radius: 8px;">
+                    <h4>الهدف من اللعبة:</h4>
+                    <p>لعبة المافيا هي صراع بين مجموعتين: المافيا التي تسعى للقضاء على المدنيين سراً، والمدنيين (بما في ذلك الأدوار الخاصة) الذين يجب عليهم اكتشاف المافيا وتصويتهم في النهار. يستمر الصراع بين الليل (عمل المافيا) والنهار (المناقشات والتصويت).</p>
+
+                    <h4 style="margin-top: 10px;">قواعد الأدوار الأساسية:</h4>
+                    <ul style="padding-right: 20px;">
+                        <li>**المافيا (🔪):** هدفهم التخلص من كل المدنيين. يلتقون سراً ليختاروا ضحيتهم في الليل.</li>
+                        <li>**المحقق (🕵️‍♂️):** يستيقظ ليلاً ليحقق مع شخص واحد ويكشف هويته إذا كان مافيا أم مدني.</li>
+                        <li>**الطبيب (👨‍⚕️):** يستيقظ ليلاً ليحمي شخصاً واحداً من هجوم المافيا. لا يمكنه إنقاذ نفسه مرتين متتاليتين.</li>
+                        <li>**المواطن (👤):** لا يمتلك أي قوة خاصة سوى المشاركة في المناقشات والتصويت لطرد المافيا خلال النهار.</li>
+                    </ul>
+
+                    <h4 style="margin-top: 10px;">مراحل اللعبة:</h4>
+                    <p>تتنقل اللعبة بين الليل والنهار بشكل متتابع حتى فوز أحد الطرفين.</p>
+                    <ol style="padding-right: 20px;">
+                        <li>**الليل:** تقوم الأدوار السرية (المافيا، الطبيب، المحقق) بأداء مهمامها. الكل صامت.</li>
+                        <li>**الصباح/النهار:** يُعلن المراقب نتائج الليل. إذا مات أحد، يطرد من اللعبة ويكشف دوره.</li>
+                        <li>**المناقشة:** يبدأ اللاعبون الأحياء مناقشة لكشف المافيا والتصويت.</li>
+                        <li>**التصويت والطرد:** يتم اختيار مشتبه به بالأغلبية وطن يتم طرده، ويكشف دوره أيضاً.</li>
+                    </ol>
+                    <h4 style="margin-top: 10px;">قواعد الكلام:</h4>
+                    <p>الاحترام والإنصاف هي مفاتيح اللعبة. يمنع الكذب عن دورك المدني. يحق لك إلقاء اتهامات بناءً على المنطق والاستنتاجات. ممنوع تماماً كشف الأوراق أو الدعم بطرق غير مباشرة بعد الإقصاء. القوانين قد تختلف حسب إعدادات المضيف.</p>
+                    
+                </div>
+            </div>
+            
+            <!-- ****** مساحة إعلانية اختيارية في القائمة الرئيسية - تستخدم كود الاختبار الآن ****** -->
+            <!-- ******* سنقوم بتحويل هذا إلى إعلان 300x90 تقريباً ****** -->
             <div id="ad-container-setup" style="margin: 15px auto; text-align: center; max-width: 450px;">
-                <!-- الرجاء وضع شفرة الإعلان الخاصة بك هنا -->
-                <p style="padding: 10px; background: rgba(50, 50, 50, 0.7); border: 1px dashed var(--primary-red);">
-                    ** ضع كود الإعلان في منطقة إعداد اللعبة هنا **
-                </p>
+                <ins class="adsbygoogle"
+                     style="display:block; width:100%; height:90px;" 
+                     data-ad-client="ca-pub-7640422200293774" <!-- كود تجريبي من Google -->
+                     data-ad-slot="9999999999"></ins>
+                <script>(adsbygoogle = window.adsbygoogle || []).push({});</script>
             </div>
             <!-- ******************************************************* -->
             
@@ -383,10 +421,14 @@
             <h2 id="game-over-title">انتهت اللعبة!</h2>
             <p id="game-over-message"></p>
             
-            <!-- ****** حاوية الإعلانات المضافة في شاشة نهاية اللعبة ****** -->
+            <!-- ****** حاوية الإعلانات المضافة في شاشة نهاية اللعبة - تستخدم كود الاختبار الآن ****** -->
+            <!-- ******* سنقوم بتحويل هذا إلى إعلان 300x250 تقريباً ****** -->
             <div id="ad-container-game-over" style="margin: 25px auto; padding: 15px; border: 2px solid #555; background: #111; min-height: 120px; color: #aaa; max-width: 350px; text-align: center;">
-                <!-- الرجاء وضع شفرة الإعلان الخاص بك هنا (مثال: كود AdSense لوحدة 300x250) -->
-                <p style="font-size: 18px; color: #aaa;">** ضع كود الإعلان في شاشة النهاية هنا **</p>
+                <ins class="adsbygoogle"
+                     style="display:block; max-width:300px; margin:auto; min-height:120px;" 
+                     data-ad-client="ca-pub-7640422200293774" <!-- كود تجريبي من Google -->
+                     data-ad-slot="9999999999"></ins>
+                <script>(adsbygoogle = window.adsbygoogle || []).push({});</script>
             </div>
             <!-- ******************************************************* -->
 
@@ -407,7 +449,13 @@
     <script src="/ai-logic.js"></script>
 
     <script>
+    // ... (كود الجافاسكريبت لا يحتاج للتعديل للإصلاحات الأخيرة، باستثناء التأكد من تحميل الإعلانات إذا تم تضمين كود الجافاسكريبت المذكور أدناه):
+
     document.addEventListener('DOMContentLoaded', function() {
+        // ... [جميع التعريفات و Functions 1-8] ... 
+        
+        // ********** بداية قسم الجافاسكريبت كما هو مأخوذ من الكود السابق **********
+
         // --- 1. DECLARATIONS ---
         const socket = io({ autoConnect: true });
         const setupContainer = document.getElementById('setup-container');
@@ -876,6 +924,11 @@
             deactivatePlayerButtons();
             document.getElementById('game-over-message').textContent = message;
             gameOverModal.classList.add('visible');
+            
+            // إعادة تفعيل وحدات إعلان AdSense يدويًا عند ظهور المودال (لأغراض الاختبار)
+            if (typeof (window.adsbygoogle) === 'object') {
+                 (window.adsbygoogle = window.adsbygoogle || []).push({}); 
+            }
         });
 
         socket.on('update-room-info', (data) => {
@@ -988,13 +1041,13 @@
             const audioEl = document.getElementById(`audio-${socketId}`);
             if (audioEl) audioEl.remove();
         });
-        socket.on('offer', (senderSocketId, offer) => {
-            createPeerConnection(senderSocketId, false);
-            peerConnections[senderSocketId].setRemoteDescription(new RTCSessionDescription(offer))
-                .then(() => peerConnections[senderSocketId].createAnswer())
+        socket.on('offer', (targetSocketId, offer) => {
+            createPeerConnection(targetSocketId, false);
+            peerConnections[targetSocketId].setRemoteDescription(new RTCSessionDescription(offer))
+                .then(() => peerConnections[targetSocketId].createAnswer())
                 .then(answer => {
-                    peerConnections[senderSocketId].setLocalDescription(answer);
-                    socket.emit('answer', senderSocketId, answer);
+                    peerConnections[targetSocketId].setLocalDescription(answer);
+                    socket.emit('answer', targetSocketId, answer);
                 });
         });
         socket.on('answer', (senderSocketId, answer) => peerConnections[senderSocketId].setRemoteDescription(new RTCSessionDescription(answer)));
@@ -1030,6 +1083,12 @@
         
         // --- INITIALIZATION ---
         initializeOnlineSetup();
+        
+        // تفعيل تحميل الإعلانات (لتجربة ظهورها فوراً - كود اختبار)
+        if (typeof (window.adsbygoogle) === 'object') {
+             (window.adsbygoogle = window.adsbygoogle || []).push({}); 
+        }
+        
     });
     </script>
 </body>
